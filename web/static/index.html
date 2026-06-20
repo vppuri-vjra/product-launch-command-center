@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Nightingale — Launch Command Center</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3348;
+      --accent: #5b8def;
+      --accent2: #7c5bf0;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --text: #e8eaf6;
+      --muted: #8892b0;
+      --greeter: #5b8def;
+      --technical: #34d399;
+      --gtm: #fbbf24;
+      --executive: #c084fc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+
+    .logo {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.02em; }
+    .subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .agent-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      transition: all 0.3s;
+    }
+
+    .agent-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--greeter);
+      transition: background 0.3s;
+    }
+
+    .agent-badge[data-agent="technical"] .agent-dot { background: var(--technical); }
+    .agent-badge[data-agent="gtm"] .agent-dot { background: var(--amber); }
+    .agent-badge[data-agent="executive"] .agent-dot { background: var(--executive); }
+
+    .agent-name { color: var(--muted); }
+    .agent-name span { color: var(--text); font-weight: 600; }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #chat::-webkit-scrollbar { width: 4px; }
+    #chat::-webkit-scrollbar-track { background: transparent; }
+    #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .msg {
+      display: flex;
+      gap: 10px;
+      animation: fadeUp 0.25s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+
+    .msg.user .avatar { background: var(--accent); border-color: var(--accent); }
+
+    .bubble {
+      max-width: 72%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .msg.user .bubble {
+      background: var(--surface2);
+      border-color: var(--accent);
+      border-opacity: 0.4;
+    }
+
+    .agent-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+
+    .agent-tag.greeter   { color: var(--greeter); }
+    .agent-tag.technical { color: var(--technical); }
+    .agent-tag.gtm       { color: var(--amber); }
+    .agent-tag.executive { color: var(--executive); }
+
+    .thinking {
+      display: flex; gap: 4px; align-items: center;
+      padding: 4px 0;
+    }
+
+    .thinking span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--muted);
+      animation: blink 1.2s infinite;
+    }
+
+    .thinking span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.3; }
+      40% { opacity: 1; }
+    }
+
+    .kb-chips {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .kb-chip {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--muted);
+    }
+
+    .kb-chip.active { color: var(--text); border-color: currentColor; }
+    .kb-chip.active.launch { color: var(--accent); }
+    .kb-chip.active.tech   { color: var(--technical); }
+    .kb-chip.active.gtm    { color: var(--amber); }
+
+    footer {
+      padding: 16px 0 20px;
+      flex-shrink: 0;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 8px 8px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .input-row:focus-within { border-color: var(--accent); }
+
+    #msg {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      resize: none;
+      line-height: 1.5;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    #msg::placeholder { color: var(--muted); }
+
+    .btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      border-radius: 8px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .btn:hover { background: var(--surface2); color: var(--text); }
+    .btn.active { color: var(--red); background: rgba(248,113,113,0.12); }
+
+    #sendBtn {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    #sendBtn:hover { background: #4a7de8; color: #fff; }
+    #sendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .hint-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .hint {
+      font-size: 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+
+    .hint:hover { color: var(--text); border-color: var(--accent); }
+
+    .voice-status {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+      min-height: 16px;
+    }
+
+    #resetBtn {
+      font-size: 11px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    #resetBtn:hover { color: var(--text); background: var(--surface2); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">🚀</div>
+    <div>
+      <h1>Project Nightingale</h1>
+      <div class="subtitle">Launch Command Center · Powered by Claude</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="resetBtn" onclick="resetSession()">↺ Reset</button>
+    <div class="agent-badge" id="agentBadge" data-agent="greeter">
+      <div class="agent-dot"></div>
+      <div class="agent-name">Agent: <span id="agentLabel">Greeter</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="chat"></div>
+
+  <footer>
+    <div class="input-row">
+      <textarea id="msg" rows="1" placeholder="Ask about the launch..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="btn" id="voiceBtn" title="Voice input" onclick="toggleVoice()">🎤</button>
+      <button class="btn" id="sendBtn" onclick="send()">➤</button>
+    </div>
+    <div class="hint-row">
+      <span class="hint" onclick="useHint(this)">What's the sprint status?</span>
+      <span class="hint" onclick="useHint(this)">How many bugs are open?</span>
+      <span class="hint" onclick="useHint(this)">What's the press embargo date?</span>
+      <span class="hint" onclick="useHint(this)">Give me an executive summary</span>
+      <span class="hint" onclick="useHint(this)">What are the rollback criteria?</span>
+      <span class="hint" onclick="useHint(this)">What's our messaging against competitors?</span>
+    </div>
+    <div class="voice-status" id="voiceStatus"></div>
+  </footer>
+</main>
+
+<script>
+  const SESSION_ID = 'session_' + Math.random().toString(36).slice(2);
+  let isListening = false;
+  let recognition = null;
+  let ttsEnabled = true;
+
+  const KB_MAP = {
+    greeter:   [],
+    technical: ['launch', 'tech'],
+    gtm:       ['launch', 'gtm'],
+    executive: ['launch', 'tech', 'gtm'],
+    end:       [],
+  };
+
+  const AGENT_LABELS = {
+    greeter: 'Greeter',
+    technical: 'Technical Readiness',
+    gtm: 'GTM & Marketing',
+    executive: 'Executive Briefing',
+    end: 'End',
+  };
+
+  async function init() {
+    const res = await fetch('/api/greet', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ session_id: SESSION_ID }),
+    });
+    const data = await res.json();
+    addBotMessage(data.text, 'greeter');
+    if (ttsEnabled) speak(data.text);
+  }
+
+  function addUserMessage(text) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `<div class="avatar">👤</div><div class="bubble">${escHtml(text)}</div>`;
+    chat.appendChild(div);
+    scrollBottom();
+  }
+
+  function addBotMessage(text, agent) {
+    const chat = document.getElementById('chat');
+    const kbs = KB_MAP[agent] || [];
+    const chips = ['launch', 'tech', 'gtm'].map(k => {
+      const active = kbs.includes(k) ? 'active ' + k : '';
+      const labels = { launch: 'KB_Launch_Plan', tech: 'KB_Technical_Readiness', gtm: 'KB_GTM_Marketing' };
+      return `<span class="kb-chip ${active}">${labels[k]}</span>`;
+    }).join('');
+
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="avatar">🤖</div>
+      <div class="bubble">
+        <div class="agent-tag ${agent}">${AGENT_LABELS[agent] || agent}</div>
+        <div>${escHtml(text)}</div>
+        <div class="kb-chips">${chips}</div>
+      </div>`;
+    chat.appendChild(div);
+    setAgent(agent);
+    scrollBottom();
+  }
+
+  function addThinking() {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.id = 'thinking';
+    div.innerHTML = `<div class="avatar">🤖</div><div class="bubble"><div class="thinking"><span></span><span></span><span></span></div></div>`;
+    chat.appendChild(div);
+    scrollBottom();
+    return div;
+  }
+
+  function removeThinking() {
+    document.getElementById('thinking')?.remove();
+  }
+
+  function setAgent(agent) {
+    const badge = document.getElementById('agentBadge');
+    const label = document.getElementById('agentLabel');
+    badge.dataset.agent = agent;
+    label.textContent = AGENT_LABELS[agent] || agent;
+  }
+
+  async function send() {
+    const input = document.getElementById('msg');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    autoResize(input);
+
+    addUserMessage(text);
+    const thinking = addThinking();
+    document.getElementById('sendBtn').disabled = true;
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ session_id: SESSION_ID, message: text }),
+      });
+      const data = await res.json();
+      removeThinking();
+      addBotMessage(data.text, data.agent);
+      if (ttsEnabled) speak(data.text);
+    } catch(e) {
+      removeThinking();
+      addBotMessage('Connection error. Is the server running?', 'greeter');
+    } finally {
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('msg').focus();
+    }
+  }
+
+  function speak(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 1.05;
+    utt.pitch = 1.0;
+    const voices = speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.name.includes('Samantha') || v.name.includes('Google US English') || v.lang === 'en-US');
+    if (preferred) utt.voice = preferred;
+    window.speechSynthesis.speak(utt);
+  }
+
+  function toggleVoice() {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }
+
+  function startListening() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      setVoiceStatus('Voice input not supported in this browser. Try Chrome.');
+      return;
+    }
+    recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('voiceBtn').classList.add('active');
+      setVoiceStatus('🎤 Listening...');
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+      document.getElementById('msg').value = transcript;
+      autoResize(document.getElementById('msg'));
+      if (e.results[0].isFinal) {
+        setVoiceStatus('✓ Got it');
+        stopListening();
+      }
+    };
+
+    recognition.onerror = (e) => {
+      setVoiceStatus('Voice error: ' + e.error);
+      stopListening();
+    };
+
+    recognition.onend = () => stopListening();
+
+    recognition.start();
+  }
+
+  function stopListening() {
+    isListening = false;
+    recognition?.stop();
+    document.getElementById('voiceBtn').classList.remove('active');
+    setTimeout(() => setVoiceStatus(''), 2000);
+  }
+
+  function setVoiceStatus(msg) {
+    document.getElementById('voiceStatus').textContent = msg;
+  }
+
+  async function resetSession() {
+    window.speechSynthesis?.cancel();
+    await fetch(`/api/session/${SESSION_ID}`, { method: 'DELETE' });
+    document.getElementById('chat').innerHTML = '';
+    setAgent('greeter');
+    init();
+  }
+
+  function useHint(el) {
+    document.getElementById('msg').value = el.textContent;
+    send();
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function scrollBottom() {
+    const chat = document.getElementById('chat');
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  // Load voices (async in Chrome)
+  speechSynthesis.onvoiceschanged = () => {};
+
+  init();
+</script>
+</body>
+</html>
