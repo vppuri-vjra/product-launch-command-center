@@ -1,0 +1,132 @@
+PROJECT NIGHTINGALE — TECHNICAL READINESS DOCUMENT
+===================================================
+Last Updated: March 28, 2026
+Document Owner: Rachel Nguyen (TPM) & Marcus Lee (Engineering Lead)
+
+--- SPRINT STATUS ---
+
+Current Sprint: Sprint 9 of 11
+Sprint 9 End Date: April 4, 2026
+Sprint 9 Velocity: 42 story points committed, 38 completed (Sprint 8 carryover: 4 points in progress)
+
+SPRINT 9 COMPLETED:
+- Checkout one-page layout: DONE
+- Apple Pay integration: DONE
+- Google Pay integration: DONE
+- PayPal integration: DONE
+- Address autofill (Google Places API): DONE
+- Perks points ledger backend: DONE
+- Perks tier calculation engine: DONE
+- Guest checkout flow: DONE
+- Unit tests (checkout): 94% coverage
+- Unit tests (Perks backend): 91% coverage
+
+SPRINT 9 IN PROGRESS:
+- Push notification opt-in overhaul (6 pts, 80% done — ETA: April 2)
+- End-to-end test suite update (4 pts, carryover — ETA: April 3)
+
+SPRINT 10 PLAN (Code Freeze Sprint — April 5–8):
+- Final E2E regression suite
+- Performance tuning (p99 latency target: <300ms)
+- Load test: 10,000 concurrent checkout sessions
+- Security scan (OWASP top 10)
+- Hotfix readiness runbook
+
+--- SYSTEM ARCHITECTURE ---
+
+Frontend: React Native (iOS 16+ / Android 12+)
+Backend API: Node.js microservices on AWS ECS (Fargate)
+Database: PostgreSQL 15 (RDS Multi-AZ) for transactional; Redis for session cache
+Perks Ledger DB: Separate PostgreSQL instance (isolated for compliance)
+Payment Gateway: Stripe (primary) with Braintree fallback
+Push Notifications: Firebase Cloud Messaging (FCM)
+CDN: CloudFront for static assets
+Monitoring: Datadog APM + PagerDuty on-call alerts
+
+--- API PERFORMANCE BENCHMARKS (Current Staging) ---
+
+Endpoint                      p50 Latency   p99 Latency   Target p99
+POST /checkout/initiate        42ms          187ms         <300ms ✓
+POST /checkout/confirm         67ms          241ms         <300ms ✓
+GET /perks/balance             18ms          94ms          <200ms ✓
+POST /perks/redeem             55ms          198ms         <300ms ✓
+POST /payment/process          89ms          267ms         <500ms ✓
+GET /user/profile              12ms          61ms          <200ms ✓
+
+All endpoints meeting target thresholds in staging as of March 26.
+
+--- QA STATUS ---
+
+QA Lead: Priya Kapoor
+Sign-Off Target: April 9, 2026
+
+Bug Counts (as of March 28):
+  Critical (P0): 0 open
+  High (P1):     2 open (both in push notification flow — ETA fix: April 2)
+  Medium (P2):   7 open (cosmetic/UX issues — acceptable for launch)
+  Low (P3):      14 open (deferred to v3.1)
+
+Resolved Bugs This Sprint: 31
+Total Bugs Filed (all time, v3.0): 89
+Regression Coverage: 87% of v2.x critical paths covered
+
+P1 Bug Details:
+  BUG-441: Opt-in prompt renders off-screen on Android 12 small viewport — fix in PR #312
+  BUG-447: Double notification sent on Perks milestone trigger — fix in PR #318 (under review)
+
+--- DEPLOYMENT PLAN ---
+
+Environment        Date          Notes
+Staging freeze     April 10      No new merges to main after this date
+Production DB migration April 13 3-hour maintenance window, 2 AM–5 AM PST
+Production deploy  April 14      Pre-warm CDN, verify health checks
+5% rollout         April 15      Feature flag enabled for 5% of iOS + Android users
+25% rollout        April 17      Contingent: crash-free rate ≥ 99.5% at 5%
+50% rollout        April 20      Contingent: no P0/P1 bugs reported in 48h window
+100% rollout       April 24      Final gate: p99 checkout latency <300ms confirmed
+
+--- ROLLBACK CRITERIA ---
+
+Automatic rollback triggers (PagerDuty alerts → on-call engineer):
+  1. Crash-free rate drops below 99.0% for 15+ minutes
+  2. Payment gateway error rate exceeds 2% for 5+ minutes
+  3. p99 checkout latency exceeds 500ms for 10+ minutes
+  4. Perks ledger inconsistency alerts fire (reconciliation mismatch)
+
+Manual rollback: Engineering Lead + TPM joint decision; rollback takes ~8 minutes via feature flag toggle.
+Rollback script: /ops/rollback_v3.sh — tested in staging March 25, confirmed working.
+
+--- ON-CALL ROTATION (April 14–24) ---
+
+Date Range         Primary On-Call        Secondary On-Call
+April 14–16        Marcus Lee (Eng Lead)  Dev 2: Aisha Patel
+April 17–19        Dev 3: James Okonkwo   Dev 4: Linda Zhao
+April 20–22        Dev 5: Carlos Mendez   Marcus Lee
+April 23–24        Aisha Patel            James Okonkwo
+
+Escalation path: On-call engineer → Marcus Lee → Rachel Nguyen (TPM) → Diana Walsh (VP)
+PagerDuty policy: P0 wakes everyone; P1 wakes primary + secondary; P2 queued for morning.
+
+--- TEAM ALLOCATION ---
+
+Engineer            Sprint 9 Focus                    Sprint 10 Focus
+Marcus Lee          Architecture review, PR reviews    Load test oversight, deploy
+Aisha Patel         Checkout backend                   E2E tests, performance tuning
+James Okonkwo       Perks backend, ledger DB           DB migration, rollback testing
+Linda Zhao          React Native frontend (checkout)   Regression suite
+Carlos Mendez       React Native frontend (Perks UI)   Security scan
+Dev 6 (contract)    Push notification backend          Hotfix standby
+
+Designers (2): UX sign-off complete March 15. Not on Sprint 9/10 critical path.
+QA (1): Priya Kapoor running regression suite daily; reports to Rachel.
+
+--- DEPENDENCIES ---
+
+Dependency                Owner           Status          Risk
+Stripe API v3 upgrade     Stripe          DONE (March 10) None
+Google Places API key     Marcus Lee      DONE (March 5)  None
+FCM project config        Carlos Mendez   DONE (March 18) None
+App Store approval        Apple           IN REVIEW       R-01 (see Launch Plan)
+Google Play approval      Google          APPROVED        Clear
+AWS capacity reservation  DevOps          DONE (March 20) None
+Perks DB compliance sign-off  Legal/Security  DONE (March 22) None

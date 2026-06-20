@@ -1,0 +1,162 @@
+PROJECT NIGHTINGALE — GO-TO-MARKET & MARKETING PLAYBOOK
+========================================================
+Last Updated: March 28, 2026
+Document Owner: Jordan Rivera (Marketing Lead)
+
+--- CAMPAIGN STRATEGY OVERVIEW ---
+
+Campaign Name: "Check Out the New You" (Checkout redesign) + "Earn Every Day" (Perks launch)
+Campaign Duration: April 14 (soft teaser) through May 15, 2026
+Total Marketing Budget: $42,000
+Target Audience: Existing app users (re-engagement) + lapsed users (win-back) + new user acquisition
+
+Primary Campaign Goals:
+1. Drive 40% Perks enrollment among MAU within 60 days
+2. Increase checkout conversion rate by 12%
+3. Achieve 4.5+ App Store rating within 90 days
+4. Generate 500 press mentions or social shares in launch week
+
+--- CHANNEL BREAKDOWN ---
+
+CHANNEL 1: EMAIL MARKETING
+Budget: $8,000 (Klaviyo platform + copywriting)
+Sends:
+  - April 14: Teaser email to full list (subject: "Something big is coming April 15")
+  - April 15: Launch email — Perks program announcement + checkout redesign
+  - April 18: Segment: users who haven't opened app in 30 days (win-back)
+  - April 22: Perks milestone email — "You're 50 points from Silver!"
+  - April 29: First conversion report; follow-up to non-openers
+
+List Size: 284,000 subscribers
+Historical open rate: 22%; click-through rate: 3.8%
+Target for launch email: Open rate ≥ 28%, CTR ≥ 5%
+
+CHANNEL 2: PAID SOCIAL (Meta + TikTok)
+Budget: $18,000
+Platforms: Instagram, Facebook, TikTok
+Creative themes:
+  - "One tap checkout" — 15-second demo video showing the new flow
+  - "Earn while you shop" — animated Perks points counter
+  - Influencer repost rights: 3 micro-influencers secured (lifestyle/shopping niche)
+
+Targeting:
+  - Retargeting: website visitors + lapsed app users (lookalike)
+  - Acquisition: 25–44 female, household income $60k+, shopping app interest
+
+Spend schedule:
+  Week 1 (April 14–20): $8,000 (heavy launch push)
+  Week 2 (April 21–27): $6,000 (sustain + A/B winner scaling)
+  Week 3 (April 28 – May 5): $4,000 (perks milestone remarketing)
+
+CHANNEL 3: PR & PRESS
+Budget: $6,000 (PR agency retainer + wire service)
+Embargo date: April 14, 11:59 PM PST (press can publish April 15, 6 AM ET)
+Target publications: TechCrunch, The Verge, Retail Dive, Mobile Commerce Daily
+Press release angle: "Redesigned checkout cuts purchase time by 40%; new Perks loyalty program launches"
+Exclusive: TechCrunch offered exclusive 24-hour window (confirmed interest, not yet locked)
+Spokesperson: Diana Walsh (VP Product) for executive quotes; Sam Torres for product detail
+
+CHANNEL 4: ORGANIC / CONTENT
+Budget: $4,000 (content creation)
+Assets:
+  - App store screenshots (new — submitted with update)
+  - "How Perks works" explainer video (90 seconds, YouTube + in-app)
+  - Blog post: "Why we redesigned checkout from the ground up" (Sam Torres byline)
+  - Social organic: 3 posts/week, April 14 – May 15
+
+CHANNEL 5: IN-APP MESSAGING
+Budget: $2,000 (Braze platform config)
+Triggers:
+  - First launch post-update: Perks onboarding carousel (3 screens)
+  - Post-checkout (first time): "You earned X points! You're Y away from Silver"
+  - Day 7 inactive: "Don't let your points go to waste"
+
+CHANNEL 6: REFERRAL / WORD-OF-MOUTH (Organic)
+No budget — organic only
+Perks Gold members get a "Share your wins" feature: screenshot generator for milestone posts
+Estimated organic reach: 5,000–15,000 impressions from user-generated content
+
+--- MESSAGING PLAYBOOK ---
+
+PRIMARY HEADLINE:
+"Shop smarter. Earn every day."
+
+SUB-MESSAGES BY AUDIENCE:
+
+For checkout-focused audience:
+"Checkout in one tap. Seriously — we counted the steps, then cut them in half."
+"Apple Pay. Google Pay. PayPal. Guest checkout. Whatever works for you."
+"Your cart doesn't wait for 4-step checkout anymore. Neither should you."
+
+For Perks-focused audience:
+"Every dollar you spend earns points. Every order. Every time."
+"Bronze, Silver, Gold — your loyalty unlocks real perks, not just discounts."
+"Free shipping. Early access. Dedicated support. That's what Gold looks like."
+
+For win-back audience:
+"We rebuilt the app you almost gave up on. Come back and earn from day one."
+
+APPROVED STATISTICS FOR PRESS/SOCIAL:
+- "40% faster checkout" (based on internal usability testing, 50-user study, March 2026)
+- "1 in 3 users abandoned checkout on the old flow — we fixed that"
+- "Gold members save an average of $47/year in shipping alone" (projected, based on avg order value)
+
+DO NOT USE (not cleared):
+- Any reference to specific competitor names in press materials
+- Exact cart abandonment rate numbers (internal — not for external use)
+- Revenue projections
+
+--- COMPETITIVE LANDSCAPE ---
+
+Competitor A (ShopFast):
+  Loyalty program: Points-based, no tiers, 1 point = $0.005 (half our value)
+  Checkout: 3-step, no guest checkout
+  Weakness: No Apple/Google Pay; poor mobile UX scores (App Store: 3.8)
+  Our advantage: Better points value, tier perks, modern checkout
+
+Competitor B (BuyNow):
+  Loyalty program: Cashback model (1% on all purchases)
+  Checkout: One-page but requires account — no guest
+  Weakness: No iOS widget; cashback limited to store credit
+  Our advantage: True guest checkout; flexible payment methods; push milestone engagement
+
+GTM Response Playbook (for Sales team):
+Q: "ShopFast also has a loyalty program — why is yours better?"
+A: "Our points are worth 2x more per dollar. And our Gold tier perks — free shipping plus dedicated support — aren't something they offer at all."
+
+Q: "BuyNow has one-page checkout too."
+A: "They do, but you can't check out as a guest. We removed that barrier entirely. Plus we support Apple Pay and Google Pay — BuyNow doesn't."
+
+--- SALES ENABLEMENT ---
+
+Sales Lead: Alex Chen
+Key Accounts Target: 12 enterprise B2B2C partners (co-branded apps)
+Sales Pitch for Partners:
+  - White-label Perks branding option (available in v3.1, roadmap item)
+  - API access for partner point multipliers (v3.1)
+  - For now: co-marketing opportunity — "Powered by Perks" badge
+
+Partner Outreach Timeline:
+  April 1: Sales deck sent to 12 accounts
+  April 15: Follow-up call scheduled post-launch
+  April 30: Close target: 3 signed LOIs for v3.1 partnership
+
+--- MARKETING SUCCESS METRICS ---
+
+Metric                              Target              Measurement
+Email open rate (launch email)      ≥ 28%               Klaviyo, April 15
+Paid social CTR                     ≥ 1.2%              Meta Ads Manager
+Press mentions in launch week       ≥ 15 outlets        Cision monitoring
+Perks enrollment rate (Day 30)      40% of MAU          Analytics dashboard
+Checkout conversion uplift          +12% vs. baseline   A/B test (Taylor Kim)
+App Store reviews (new, Day 14)     ≥ 200 reviews       App Store Connect
+App Store rating (Day 90)           ≥ 4.5 stars         App Store Connect
+Win-back email conversion           ≥ 8% open-to-install Email flow analytics
+
+--- PRESS EMBARGO & PR TIMING ---
+
+Press embargo lifted: April 15, 2026 at 6:00 AM ET / 3:00 AM PT
+Press kit live URL: [internal Notion link — provided to press under NDA]
+Spokesperson availability: Diana Walsh — 9 AM–12 PM PT April 15 (4 slots of 30 min each)
+PR agency point of contact: Marisa Fontaine, Highline PR (marisa@highlinepr.com)
+Wire service: PR Newswire — press release goes live April 15, 6 AM ET simultaneously

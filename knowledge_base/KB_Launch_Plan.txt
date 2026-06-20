@@ -1,0 +1,109 @@
+PROJECT NIGHTINGALE — MASTER LAUNCH PLAN
+=========================================
+Last Updated: March 28, 2026
+Document Owner: Sam Torres (PM) & Rachel Nguyen (TPM)
+
+--- PROJECT OVERVIEW ---
+
+Product: Mobile App v3.0 — Redesigned Checkout + Perks Loyalty Program
+Launch Date: April 15, 2026 (staged rollout)
+Current Sprint: Sprint 9 of 11
+Overall Status: ON TRACK (Yellow flag: App Store review timing — submitted March 20, typical review 3–7 days)
+Executive Sponsor: Diana Walsh, VP Product
+PM: Sam Torres
+TPM: Rachel Nguyen
+
+--- FEATURES IN THIS RELEASE ---
+
+Feature 1: Redesigned Checkout Flow
+- One-page checkout replaces 4-step funnel
+- Apple Pay, Google Pay, PayPal added alongside credit card
+- Address autofill via Google Places API
+- Guest checkout no longer requires account creation
+- A/B test target: 15% reduction in cart abandonment
+
+Feature 2: Perks Loyalty Program
+- Points per dollar: 1 point = $0.01 spend, redeemable at 500 points minimum
+- Tiers: Bronze (0–499 pts), Silver (500–1999 pts), Gold (2000+ pts)
+- Gold perks: free shipping, early access to sales, dedicated support line
+- Real-time points balance in the app home screen
+- Push notifications for point milestones
+
+Feature 3: Push Notification Overhaul
+- Granular opt-in by category (promotions, order updates, loyalty milestones)
+- A/B test: personalized vs. generic copy — winner deployed at 50% rollout
+
+--- MILESTONES ---
+
+Milestone                          Target Date     Status
+-----------                        -----------     ------
+Sprint 9 complete                  April 4, 2026   On Track
+Sprint 10 complete (code freeze)   April 8, 2026   On Track
+App Store submission               March 20, 2026  DONE
+Google Play submission             March 22, 2026  DONE
+QA sign-off                        April 9, 2026   On Track
+Staging environment freeze         April 10, 2026  Planned
+5% staged rollout begins           April 15, 2026  Planned
+25% rollout                        April 17, 2026  Planned
+50% rollout                        April 20, 2026  Planned
+100% rollout                       April 24, 2026  Planned
+Post-launch review                 May 2, 2026     Planned
+
+--- RISK REGISTER ---
+
+Risk ID  Description                              Severity   Mitigation
+R-01     App Store review delay (>7 days)         HIGH       Submitted March 20; fallback: delay to April 18
+R-02     Payment gateway timeout under load       MEDIUM     Load test scheduled April 7; circuit breaker in place
+R-03     Perks DB migration data corruption       MEDIUM     Dry-run completed March 25; rollback script ready
+R-04     Push notification opt-in below 30%       LOW        Onboarding prompt re-designed; A/B test running
+R-05     Competitor launches similar loyalty       LOW        Monitor; GTM team has response playbook ready
+
+--- STAKEHOLDER LIST ---
+
+Name              Role                         Team
+Sam Torres        PM                           Product
+Rachel Nguyen     TPM                          Engineering/PMO
+Diana Walsh       VP Product (Exec Sponsor)    Executive
+Marcus Lee        Engineering Lead             Engineering
+Priya Kapoor      QA Lead                      QA
+Jordan Rivera     Marketing Lead               Marketing
+Alex Chen         Sales Lead                   Sales
+Taylor Kim        Data/Analytics Lead          Analytics
+
+--- SUCCESS METRICS (PRIMARY) ---
+
+Metric                             Target          Measurement Window
+Cart abandonment rate reduction    -15%            30 days post-launch
+Checkout conversion rate           +12%            30 days post-launch
+Perks program enrollment           40% of MAU      60 days post-launch
+App store rating                   ≥ 4.5 stars     90 days post-launch
+Crash-free session rate            ≥ 99.5%         30 days post-launch
+
+--- BUDGET ---
+
+Total approved budget:    $220,000
+Projected spend:          $210,000 (under budget by $10,000)
+
+Budget Breakdown:
+Engineering (salaries + contractors):  $130,000
+QA & Testing:                          $18,000
+Marketing & GTM:                       $42,000
+Infrastructure (cloud, CDN, DB):       $12,000
+Miscellaneous & contingency:           $8,000
+
+--- KEY DECISIONS LOG ---
+
+Date         Decision
+2026-01-15   Chose one-page checkout over progressive disclosure approach
+2026-02-01   Perks program scope locked (no referral program in v3.0 — deferred to v3.1)
+2026-02-20   Apple Pay and Google Pay approved by finance security review
+2026-03-01   Staged rollout strategy approved (5/25/50/100 over 9 days)
+2026-03-10   Guest checkout confirmed — legal cleared no-account path for GDPR
+2026-03-25   DB migration dry-run passed; full migration approved for April 13
+
+--- POST-LAUNCH PLAN ---
+
+Week 1 (April 15–22): Monitor crash-free rate, payment gateway errors, Perks enrollment rate daily
+Week 2 (April 23–29): First conversion data; A/B test push notification winner declared
+Week 3 (April 30 – May 2): Post-launch retrospective; v3.1 scoping begins
+v3.1 Target Features: Referral program, Social sharing for Perks milestones, Saved payment method management
