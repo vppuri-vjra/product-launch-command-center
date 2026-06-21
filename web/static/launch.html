@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Nightingale — Launch Command Center · vjra.us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --accent: #b85042;
+    --ink: #1a1a2e;
+    --muted: #767676;
+    --bg: #f8f4ee;
+    --surface: #f4f3f0;
+    --border: #e8e6e1;
+    --green: #2d6a4f;
+    --amber: #b45309;
+    --purple: #6d28d9;
+    --blue: #1d4ed8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: #2b2b2b;
+    line-height: 1.6;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Cormorant italic only on section headers in chat tab */
+  #tab-chat .info-section-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.1rem;
+    letter-spacing: .02em;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 4px solid var(--accent);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .kicker {
+    text-transform: uppercase; letter-spacing: .12em; font-size: .7rem;
+    font-weight: 700; color: var(--accent); margin-bottom: .2rem;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.7rem; color: var(--ink); font-weight: 400;
+    letter-spacing: .01em;
+  }
+  .agent-pill {
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: .75rem;
+    background: var(--surface);
+    transition: border-color .3s;
+  }
+  .agent-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    transition: background .3s;
+    flex-shrink: 0;
+  }
+  .agent-label { color: var(--muted); }
+  .agent-label strong { color: var(--ink); }
+
+  /* ── API key gate ── */
+  #gate {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .gate-card {
+    max-width: 480px; width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    background: var(--bg);
+  }
+  .gate-card h2 {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 500;
+    color: var(--ink); margin-bottom: .5rem;
+  }
+  .gate-card p { font-size: .9rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .gate-card input {
+    width: 100%; padding: .65rem .9rem;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-size: .9rem; font-family: monospace;
+    background: var(--surface); color: var(--ink);
+    margin-bottom: .75rem;
+    outline: none;
+  }
+  .gate-card input:focus { border-color: var(--accent); }
+  .gate-card button {
+    width: 100%; padding: .7rem;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 6px;
+    font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+  .gate-card button:hover { background: #a04038; }
+  .gate-note {
+    font-size: .75rem; color: var(--muted);
+    margin-top: .75rem; text-align: center;
+  }
+
+  /* ── Main chat layout ── */
+  #app { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: .7rem 1.5rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+    letter-spacing: .01em;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Tab panels ── */
+  .tab-panel {
+    flex: 1;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+  }
+  .tab-panel.active { display: flex; }
+
+  /* Overview tab — scrollable cards */
+  #tab-overview {
+    overflow-y: auto;
+    padding: 1.5rem 2rem;
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  #tab-overview.active { display: flex; }
+
+  /* ── Body: chat + sidebar ── */
+  .body-row {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Chat column */
+  .chat-col {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+
+  /* Chat */
+  #chat {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  #chat::-webkit-scrollbar { width: 4px; }
+  #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── Right Sidebar ── */
+  .sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 1.25rem 1.25rem 2rem;
+    background: var(--bg);
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-section { margin-bottom: 1.75rem; }
+
+  .sidebar-kicker {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--accent);
+    margin-bottom: .7rem;
+    padding-bottom: .4rem;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* ── Routing diagram ── */
+  .routing-diagram {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .75rem;
+  }
+  .route-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: .55rem;
+  }
+  .route-from {
+    display: flex; align-items: center; gap: 5px;
+    font-weight: 700; color: var(--ink);
+    white-space: nowrap;
+    min-width: 68px;
+  }
+  .route-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .route-arrow { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .route-targets { color: var(--muted); line-height: 1.45; }
+  .route-targets b { color: var(--ink); font-weight: 600; }
+
+  .cross-note {
+    font-size: .7rem; color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: .5rem; margin-top: .5rem;
+    line-height: 1.5;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  .cross-note b { color: var(--ink); }
+
+  /* Agent table */
+  .agent-table { width: 100%; border-collapse: collapse; }
+  .agent-table tr { border-bottom: 1px solid var(--border); }
+  .agent-table tr:last-child { border-bottom: none; }
+  .agent-table td {
+    padding: .45rem .3rem;
+    font-size: .8rem;
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .agent-table td:first-child {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    color: var(--ink);
+    width: 40%;
+    padding-right: .5rem;
+  }
+  .agent-table td:last-child {
+    color: var(--muted);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .75rem;
+  }
+  .agent-table .dot {
+    display: inline-block;
+    width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 5px; vertical-align: middle;
+    flex-shrink: 0;
+  }
+
+  /* Questions list */
+  .q-group { margin-bottom: 1rem; }
+  .q-group-label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .63rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .09em;
+    color: var(--muted);
+    margin-bottom: .4rem;
+  }
+  .q-item {
+    display: block;
+    font-size: .82rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--ink);
+    padding: .28rem .45rem;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1.45;
+    transition: background .12s, color .12s;
+    margin-bottom: 1px;
+  }
+  .q-item:hover {
+    background: var(--surface);
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .msg { display: flex; gap: 10px; animation: fadeUp .2s ease; }
+  .msg.user { flex-direction: row-reverse; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    margin-top: 2px;
+  }
+  .msg.user .avatar { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .bubble {
+    max-width: 72%;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    font-size: .88rem;
+    line-height: 1.65;
+  }
+  .msg.user .bubble { background: var(--surface); }
+
+  .agent-tag {
+    font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: .3rem; opacity: .75;
+  }
+  .agent-tag.greeter   { color: var(--muted); }
+  .msg.bot.greeter-msg .bubble {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1.75;
+    letter-spacing: .01em;
+  }
+  .agent-tag.technical { color: var(--green); }
+  .agent-tag.gtm       { color: var(--amber); }
+  .agent-tag.executive { color: var(--purple); }
+
+  .thinking { display: flex; gap: 5px; padding: 4px 0; }
+  .thinking b {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted); display: block;
+    animation: blink 1.2s infinite;
+  }
+  .thinking b:nth-child(2) { animation-delay: .2s; }
+  .thinking b:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+
+  /* Footer / input */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: .85rem 1.5rem 1rem;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .footer-inner { max-width: 100%; margin: 0; }
+  .input-row {
+    display: flex; gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 6px 6px 12px;
+    background: #fff;
+    transition: border-color .2s;
+  }
+  .input-row:focus-within { border-color: var(--accent); }
+  #msg {
+    flex: 1; border: none; outline: none;
+    font-size: .9rem; resize: none;
+    background: transparent; color: var(--ink);
+    line-height: 1.5; max-height: 90px; overflow-y: auto;
+  }
+  #msg::placeholder { color: #bbb; }
+  .btn {
+    border: none; cursor: pointer; border-radius: 6px;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; background: transparent; color: var(--muted);
+    transition: all .15s; flex-shrink: 0;
+  }
+  .btn:hover { background: var(--surface); color: var(--ink); }
+  .btn.recording { color: var(--accent); background: #fce8e6; }
+  #sendBtn {
+    background: var(--accent); color: #fff;
+  }
+  #sendBtn:hover { background: #a04038; color: #fff; }
+  #sendBtn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .hints { display: flex; gap: 6px; flex-wrap: wrap; margin-top: .65rem; }
+
+  /* ── Card grid classes (replaces inline styles) ── */
+  .card-grid-2 {
+    padding: .75rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem 1.5rem;
+  }
+  .card-grid-3 {
+    padding: .75rem 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem;
+  }
+
+  /* ── Agent orbit diagram ── */
+  .agent-orbit-wrap {
+    padding: .9rem 1.5rem .75rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .orbit-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .orbit-node {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  /* ── Agent balls ── */
+  .orbit-ball {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem; font-weight: 700;
+    box-shadow: inset -2px -2px 5px rgba(0,0,0,.35), inset 1px 1px 4px rgba(255,255,255,.3), 0 3px 10px rgba(0,0,0,.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,.4);
+    transition: transform .15s, filter .15s;
+  }
+  /* Subtle receive-glow: balls light up when the packet arrives */
+  #ob-g { animation: ballGlow 5s ease-in-out infinite; animation-delay: 0s; }
+  #ob-t { animation: ballGlow 5s ease-in-out infinite; animation-delay: 1s; }
+  #ob-m { animation: ballGlow 5s ease-in-out infinite; animation-delay: 2s; }
+  #ob-e { animation: ballGlow 5s ease-in-out infinite; animation-delay: 3s; }
+  @keyframes ballGlow {
+    0%,8%,100% { transform: scale(1);    filter: brightness(1); }
+    4%          { transform: scale(1.18); filter: brightness(1.4); }
+  }
+
+  /* ── Moving packet dot on arrows ── */
+  .orbit-arrow-wrap {
+    position: relative; display: flex; align-items: center;
+    margin-top: -14px;
+  }
+  .orbit-arrow {
+    font-size: 1.2rem; color: var(--border);
+  }
+  /* Packet dot */
+  .orbit-arrow-wrap::after {
+    content: '';
+    position: absolute; top: 50%; left: 0;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px 2px rgba(184,80,66,.6);
+    transform: translateY(-50%) translateX(-4px);
+    opacity: 0;
+  }
+  .orbit-arrow-wrap:nth-child(2)::after  { animation: packetMove 5s linear infinite; animation-delay: 0.5s; }
+  .orbit-arrow-wrap:nth-child(4)::after  { animation: packetMove 5s linear infinite; animation-delay: 1.5s; }
+  .orbit-arrow-wrap:nth-child(6)::after  { animation: packetMove 5s linear infinite; animation-delay: 2.5s; }
+  .orbit-arrow-wrap:nth-child(8)::after  { animation: packetMove 5s linear infinite; animation-delay: 3.5s; }
+  .orbit-arrow-wrap:nth-child(10)::after { animation: packetMove 5s linear infinite; animation-delay: 4.3s; }
+  @keyframes packetMove {
+    0%    { opacity: 0; left: 0; }
+    5%    { opacity: 1; }
+    45%   { opacity: 1; }
+    50%   { opacity: 0; left: calc(100% - 4px); }
+    100%  { opacity: 0; left: calc(100% - 4px); }
+  }
+
+  .orbit-person {
+    font-size: 1.7rem; line-height: 1;
+  }
+  .orbit-wave {
+    font-size: 1.5rem; color: var(--accent);
+    opacity: .4; letter-spacing: -2px;
+    animation: waveBreath 3s ease-in-out infinite;
+  }
+  @keyframes waveBreath {
+    0%,100% { opacity: .35; }
+    50%      { opacity: .8; }
+  }
+  .orbit-label {
+    font-size: .6rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em;
+  }
+  .orbit-arrow {
+    font-size: 1.1rem; color: var(--border); margin-top: -12px;
+  }
+  .orbit-caption {
+    text-align: center; font-size: .72rem;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--muted); margin-top: .6rem;
+  }
+
+  /* ── Greeter info sections ── */
+  .greeter-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-top: 2px solid var(--border);
+    margin-top: .5rem;
+  }
+  .greeter-info::-webkit-scrollbar { width: 3px; }
+  .greeter-info::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .info-section {
+    border-bottom: 1px solid var(--border);
+  }
+  .info-section:last-child { border-bottom: none; }
+  .info-section-head {
+    background: var(--surface);
+    padding: .45rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: .63rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--accent);
+  }
+  .info-section-body {
+    padding: .65rem 1.5rem .8rem;
+  }
+
+  /* ── Mobile sidebar toggle ── */
+  #sidebarToggle {
+    display: none;
+    background: none; border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px;
+    font-size: .75rem; color: var(--muted);
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  #sidebarToggle:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* ── Responsive breakpoints ── */
+  @media (max-width: 768px) {
+
+    /* Header */
+    header { padding: .9rem 1rem; }
+    h1 { font-size: 1.1rem; }
+    .agent-pill { display: none; }
+
+    /* Prevent horizontal overflow */
+    body, #app { overflow-x: hidden; }
+
+    /* Global left/right padding so nothing touches the edge */
+    #chat { padding: 1rem; }
+    #tab-overview { padding: 1rem; }
+    #info-cards { width: 100%; box-sizing: border-box; }
+    #info-cards > div { width: 100%; box-sizing: border-box; min-width: 0; }
+    .sidebar { padding: 1rem; }
+    footer { padding: .7rem 1rem .85rem; }
+    .bubble { max-width: 92%; font-size: .85rem; }
+
+    /* Tabs */
+    .tab { padding: .6rem .9rem; font-size: .75rem; }
+
+    /* Overview tab — single column grids */
+    .card-grid-2 { grid-template-columns: 1fr; }
+    .card-grid-3 { grid-template-columns: 1fr 1fr; }
+
+    /* Chat layout — hide sidebar, full width chat */
+    .body-row { flex-direction: column; }
+    .chat-col { border-right: none; }
+    .sidebar { display: none; width: 100%; border-top: 1px solid var(--border); }
+    .sidebar.open { display: block; }
+
+    /* Show sidebar toggle button */
+    #sidebarToggle { display: inline-block; }
+
+    /* Footer */
+    footer { padding: .7rem 1rem .85rem; }
+
+    /* Chat bubbles */
+    .bubble { max-width: 88%; }
+  }
+
+  @media (max-width: 480px) {
+    .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+    h1 { font-size: 1rem; }
+    .tab { padding: .55rem .7rem; font-size: .72rem; }
+  }
+  .hint {
+    font-size: .75rem; border: 1px solid var(--border);
+    border-radius: 5px; padding: 3px 10px;
+    cursor: pointer; color: var(--muted); background: var(--surface);
+    transition: all .15s;
+  }
+  .hint:hover { color: var(--ink); border-color: var(--accent); }
+
+  .footer-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: .6rem; font-size: .72rem; color: #bbb;
+  }
+  #voiceStatus { min-height: 14px; }
+  #resetBtn {
+    background: none; border: none; cursor: pointer;
+    color: #bbb; font-size: .72rem; padding: 2px 6px; border-radius: 4px;
+  }
+  #resetBtn:hover { color: var(--muted); background: var(--surface); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="kicker">vjra.us / launch</div>
+    <h1>Project Nightingale — Launch Command Center</h1>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="/" style="font-size:.75rem;color:var(--muted);text-decoration:none;">← Research Library</a>
+    <div class="agent-pill" id="agentPill">
+      <div class="agent-dot" id="agentDot"></div>
+      <div class="agent-label">Agent: <strong id="agentName">Greeter</strong></div>
+    </div>
+  </div>
+</header>
+
+<!-- API key gate -->
+<div id="gate">
+  <div class="gate-card">
+    <h2>Enter your API Key</h2>
+    <p>Your Anthropic API key is used directly in the browser to call Claude. It is stored only in this browser session and never sent to any server.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off"/>
+    <button onclick="startApp()">Launch Command Center</button>
+    <p class="gate-note">Don't have a key? Get one at <strong>console.anthropic.com</strong></p>
+  </div>
+</div>
+
+<!-- Main app -->
+<div id="app">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('overview')">Business Problem &amp; Solution</button>
+    <button class="tab" onclick="switchTab('chat')">Launch Command Center</button>
+  </div>
+
+  <!-- Tab 1: Overview (info cards) -->
+  <div id="tab-overview" class="tab-panel active">
+      <div id="info-cards" style="display:flex;flex-direction:column;gap:.75rem;">
+
+        <!-- Card 1: Business Problem -->
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="background:var(--surface);padding:.5rem 1rem;border-bottom:1px solid var(--border);">
+            <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">01 · Business Problem</span>
+          </div>
+          <div class="card-grid-2">
+
+            <!-- The Problem -->
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.35rem;">The Problem</div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.6;">When a PM or TPM runs a product launch, they become the <strong style="color:var(--ink)">human switchboard</strong> for the entire org. Engineering asks about the rollback plan. Marketing asks about the press embargo. The VP wants a 30-second status read. Sales wants objection-handling scripts.</div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-top:.4rem;">Answering the same core questions from five angles, all day, for weeks — is not a good use of their time.</div>
+            </div>
+
+            <!-- The Solution -->
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.35rem;">The Solution</div>
+              <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:.45rem;">A <strong style="color:var(--ink)">voice AI Command Center</strong> that routes every stakeholder to the right specialist automatically:</div>
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div style="font-size:.73rem;display:flex;gap:6px;align-items:baseline;">
+                  <span style="width:7px;height:7px;border-radius:50%;background:#2d6a4f;flex-shrink:0;margin-top:3px;display:inline-block;"></span>
+                  <span style="color:var(--muted);line-height:1.4;"><strong style="color:var(--ink)">Technical Readiness</strong> — engineering, QA, deployment, rollback</span>
+                </div>
+                <div style="font-size:.73rem;display:flex;gap:6px;align-items:baseline;">
+                  <span style="width:7px;height:7px;border-radius:50%;background:#b45309;flex-shrink:0;margin-top:3px;display:inline-block;"></span>
+                  <span style="color:var(--muted);line-height:1.4;"><strong style="color:var(--ink)">GTM & Marketing</strong> — campaigns, press, sales, competitive</span>
+                </div>
+                <div style="font-size:.73rem;display:flex;gap:6px;align-items:baseline;">
+                  <span style="width:7px;height:7px;border-radius:50%;background:#6d28d9;flex-shrink:0;margin-top:3px;display:inline-block;"></span>
+                  <span style="color:var(--muted);line-height:1.4;"><strong style="color:var(--ink)">Executive Briefing</strong> — status, risks, budget, milestones</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Card 2: Solution Description -->
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="background:var(--surface);padding:.5rem 1rem;border-bottom:1px solid var(--border);">
+            <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">02 · Solution Description</span>
+          </div>
+          <div class="card-grid-2">
+
+            <!-- Why not one agent -->
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.35rem;">Why Not One Agent?</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:.73rem;padding:.4rem .5rem;background:#fef2f2;border-left:2px solid #f87171;border-radius:0 4px 4px 0;color:#7f1d1d;line-height:1.45;">One giant system prompt gets confused about which "mode" to be in — response quality degrades as it gets longer</div>
+                <div style="font-size:.73rem;padding:.4rem .5rem;background:#fef2f2;border-left:2px solid #f87171;border-radius:0 4px 4px 0;color:#7f1d1d;line-height:1.45;">A single agent may leak marketing budget numbers when answering a technical question — no information boundaries</div>
+                <div style="font-size:.73rem;padding:.4rem .5rem;background:#fef2f2;border-left:2px solid #f87171;border-radius:0 4px 4px 0;color:#7f1d1d;line-height:1.45;">All agents share the same tone — can't be precise for engineers and concise for executives simultaneously</div>
+              </div>
+            </div>
+
+            <!-- Why multi-agent -->
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.35rem;">Why Multi-Agent Orchestration?</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:.73rem;padding:.4rem .5rem;background:#f0fdf4;border-left:2px solid #4ade80;border-radius:0 4px 4px 0;color:#14532d;line-height:1.45;">Each subagent has a short, focused prompt — the LLM knows exactly what role it's playing, keeping quality high</div>
+                <div style="font-size:.73rem;padding:.4rem .5rem;background:#f0fdf4;border-left:2px solid #4ade80;border-radius:0 4px 4px 0;color:#14532d;line-height:1.45;">Each subagent only sees the KB files relevant to its domain — information is scoped and cannot cross boundaries</div>
+                <div style="font-size:.73rem;padding:.4rem .5rem;background:#f0fdf4;border-left:2px solid #4ade80;border-radius:0 4px 4px 0;color:#14532d;line-height:1.45;">Each node is independently testable and debuggable — fixing one agent doesn't affect the others</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Card 3: Technical Architecture -->
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="background:var(--surface);padding:.5rem 1rem;border-bottom:1px solid var(--border);">
+            <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">02 · Technical Architecture</span>
+          </div>
+          <div class="card-grid-3">
+            <div style="padding:.5rem .6rem;background:var(--surface);border-radius:6px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px;">Model</div>
+              <div style="font-size:.72rem;color:var(--muted);line-height:1.4;">Claude<br><strong style="color:var(--ink)">sonnet-4-6</strong><br>via Anthropic API</div>
+            </div>
+            <div style="padding:.5rem .6rem;background:var(--surface);border-radius:6px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px;">Orchestration</div>
+              <div style="font-size:.72rem;color:var(--muted);line-height:1.4;">4 agents with scoped system prompts. <code style="font-size:.65rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">ROUTE:</code> signals switch agents mid-conversation.</div>
+            </div>
+            <div style="padding:.5rem .6rem;background:var(--surface);border-radius:6px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px;">KB Scoping</div>
+              <div style="font-size:.72rem;color:var(--muted);line-height:1.4;">3 KB files embedded in JS. Each agent only receives files relevant to its domain.</div>
+            </div>
+            <div style="padding:.5rem .6rem;background:var(--surface);border-radius:6px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px;">Vector DB</div>
+              <div style="font-size:.72rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--ink)">Pinecone</strong> (production) · ChromaDB (local dev)<br>Index: <strong style="color:var(--ink)">nightingale-launch</strong><br>Namespaces: <code style="font-size:.65rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">technical</code> <code style="font-size:.65rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">gtm</code> <code style="font-size:.65rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">launch</code><br>cosine similarity · 1536-dim</div>
+            </div>
+            <div style="padding:.5rem .6rem;background:var(--surface);border-radius:6px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px;">Chunking</div>
+              <div style="font-size:.72rem;color:var(--muted);line-height:1.4;">Chunk size: <strong style="color:var(--ink)">512 tokens</strong><br>Overlap: <strong style="color:var(--ink)">64 tokens</strong><br>Strategy: recursive text splitter · top-k = 5</div>
+            </div>
+            <div style="padding:.5rem .6rem;background:var(--surface);border-radius:6px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px;">Embeddings &amp; Voice</div>
+              <div style="font-size:.72rem;color:var(--muted);line-height:1.4;">Embed: <strong style="color:var(--ink)">text-embedding-3-small</strong><br><span style="font-size:.68rem;font-style:italic;">62M params · 5× cheaper than large · retrieval quality on par for short structured KB docs · low latency for real-time routing</span><br><br>STT: Web Speech API<br>TTS: SpeechSynthesis · Daniel · rate 0.92</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Architecture Diagram -->
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="background:var(--surface);padding:.55rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">04 · System Architecture</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.82rem;color:var(--muted);">Multi-agent voice + text AI on static hosting</span>
+          </div>
+
+          <!-- Cream diagram container -->
+          <div style="background:#e8e0d4;padding:1.5rem 1.25rem 1.25rem;">
+
+            <!-- ── LAYER 1: User Input ── -->
+            <div style="display:flex;justify-content:center;margin-bottom:.5rem;">
+              <div style="display:inline-flex;align-items:stretch;border:1px solid #ddd8d0;border-radius:32px;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+                <div style="padding:.5rem 1.2rem;display:flex;align-items:center;gap:.4rem;border-right:1px solid #e8e6e1;">
+                  <span style="font-size:1rem;">🎤</span>
+                  <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:#1a1a2e;">Voice</div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#767676;">Web Speech STT</div>
+                  </div>
+                </div>
+                <div style="padding:.5rem 1rem;display:flex;align-items:center;gap:.3rem;">
+                  <span style="font-size:.9rem;color:#767676;">⌨</span>
+                  <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:#1a1a2e;">Text</div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#767676;">Chat input</div>
+                  </div>
+                </div>
+                <div style="padding:.4rem .9rem;display:flex;align-items:center;border-left:1px solid #e8e6e1;">
+                  <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.72rem;color:#b85042;">You</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- connector -->
+            <div style="display:flex;justify-content:center;"><div style="width:1px;height:22px;background:linear-gradient(to bottom,#ddd8d0,#b85042);position:relative;">
+              <div style="position:absolute;bottom:-4px;left:-3px;width:7px;height:7px;border-radius:50%;background:#b85042;box-shadow:0 0 5px rgba(184,80,66,.4);"></div>
+            </div></div>
+
+            <!-- ── LAYER 2: Greeter / Orchestration ── -->
+            <div style="border:1px solid rgba(184,80,66,.35);border-radius:10px;padding:.75rem 1rem;background:rgba(184,80,66,.04);margin-bottom:.5rem;display:flex;align-items:center;gap:.9rem;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+              <!-- ball G -->
+              <div style="width:42px;height:42px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 35%,#b0b0b0,#606060,#2a2a2a);box-shadow:inset -2px -2px 5px rgba(0,0,0,.4),inset 1px 1px 4px rgba(255,255,255,.25),0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.5);">G</div>
+              <div style="flex:1;">
+                <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:#1a1a2e;margin-bottom:.1rem;">Greeter Agent <span style="font-style:normal;font-size:.72rem;color:#b85042;font-family:'Inter',sans-serif;font-weight:500;">· Orchestrator</span></div>
+                <div style="font-family:'Inter',sans-serif;font-size:.65rem;color:#767676;">Classifies intent from any question → emits <code style="background:#f0ece6;padding:1px 4px;border-radius:3px;font-size:.6rem;color:#b85042;">ROUTE:</code> signal → hands off to the right specialist</div>
+              </div>
+              <div style="position:absolute;right:.75rem;top:.55rem;background:#f0ece6;border:1px solid #ddd8d0;border-radius:4px;padding:.2rem .45rem;font-family:'Inter',sans-serif;font-size:.58rem;color:#a8a29e;letter-spacing:.3px;">claude-sonnet-4-6</div>
+            </div>
+
+            <!-- fan-out connectors -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.3rem;padding:0 .5rem;">
+              <div style="display:flex;justify-content:center;"><div style="width:1px;height:20px;background:linear-gradient(to bottom,rgba(45,106,79,.5),rgba(45,106,79,.15));position:relative;"><div style="position:absolute;bottom:-4px;left:-3px;width:7px;height:7px;border-radius:50%;background:#2d6a4f;box-shadow:0 0 4px rgba(45,106,79,.4);"></div></div></div>
+              <div style="display:flex;justify-content:center;"><div style="width:1px;height:20px;background:linear-gradient(to bottom,rgba(180,83,9,.5),rgba(180,83,9,.15));position:relative;"><div style="position:absolute;bottom:-4px;left:-3px;width:7px;height:7px;border-radius:50%;background:#b45309;box-shadow:0 0 4px rgba(180,83,9,.4);"></div></div></div>
+              <div style="display:flex;justify-content:center;"><div style="width:1px;height:20px;background:linear-gradient(to bottom,rgba(109,40,217,.5),rgba(109,40,217,.15));position:relative;"><div style="position:absolute;bottom:-4px;left:-3px;width:7px;height:7px;border-radius:50%;background:#6d28d9;box-shadow:0 0 4px rgba(109,40,217,.4);"></div></div></div>
+            </div>
+
+            <!-- ── LAYER 3: Specialist Agents ── -->
+            <div class="card-grid-3" style="gap:.5rem;margin-bottom:.35rem;">
+
+              <!-- Technical -->
+              <div style="border:1px solid rgba(45,106,79,.4);border-radius:9px;padding:.65rem .7rem;background:#f0fdf6;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+                  <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 35%,#6ecfa0,#2d6a4f,#0f3320);box-shadow:inset -1px -1px 4px rgba(0,0,0,.3),0 1px 5px rgba(45,106,79,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.9rem;">T</div>
+                  <div>
+                    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.88rem;color:#2d6a4f;line-height:1.1;">Technical</div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#5a9e7a;">Readiness</div>
+                  </div>
+                </div>
+                <div style="font-family:'Inter',sans-serif;font-size:.6rem;color:#767676;line-height:1.5;">Engineering · QA · Deployment<br>Rollback · On-call · APIs</div>
+              </div>
+
+              <!-- GTM -->
+              <div style="border:1px solid rgba(180,83,9,.4);border-radius:9px;padding:.65rem .7rem;background:#fffbf0;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+                  <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 35%,#f0c060,#b45309,#6b2e00);box-shadow:inset -1px -1px 4px rgba(0,0,0,.3),0 1px 5px rgba(180,83,9,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.9rem;">M</div>
+                  <div>
+                    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.88rem;color:#92400e;line-height:1.1;">GTM &amp; Marketing</div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#b45309;">Go-to-Market</div>
+                  </div>
+                </div>
+                <div style="font-family:'Inter',sans-serif;font-size:.6rem;color:#767676;line-height:1.5;">Campaigns · Press · Messaging<br>Sales enablement · Competitive</div>
+              </div>
+
+              <!-- Executive -->
+              <div style="border:1px solid rgba(109,40,217,.4);border-radius:9px;padding:.65rem .7rem;background:#f8f5ff;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+                  <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 35%,#b48df0,#6d28d9,#320a7a);box-shadow:inset -1px -1px 4px rgba(0,0,0,.3),0 1px 5px rgba(109,40,217,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.9rem;">E</div>
+                  <div>
+                    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.88rem;color:#5b21b6;line-height:1.1;">Executive</div>
+                    <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#7c3aed;">Briefing</div>
+                  </div>
+                </div>
+                <div style="font-family:'Inter',sans-serif;font-size:.6rem;color:#767676;line-height:1.5;">Status · Risks · Budget · KPIs<br>Milestones · Full KB access</div>
+              </div>
+
+            </div>
+
+            <!-- KB connectors -->
+            <div class="card-grid-3" style="gap:.5rem;margin-bottom:.3rem;padding:0 .5rem;">
+              <div style="display:flex;justify-content:center;"><div style="width:1px;height:16px;background:rgba(45,106,79,.25);"></div></div>
+              <div style="display:flex;justify-content:center;"><div style="width:1px;height:16px;background:rgba(180,83,9,.25);"></div></div>
+              <div style="display:flex;justify-content:center;"><div style="width:1px;height:16px;background:rgba(109,40,217,.25);"></div></div>
+            </div>
+
+            <!-- ── LAYER 4: Knowledge Bases ── -->
+            <div class="card-grid-3" style="gap:.5rem;margin-bottom:.5rem;">
+
+              <div style="border:1px dashed rgba(45,106,79,.5);border-radius:7px;padding:.55rem .65rem;background:#fff;">
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.06em;color:#2d6a4f;margin-bottom:.25rem;">KB_TECHNICAL</div>
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#767676;line-height:1.5;">Sprint · QA · APIs<br>Deploy · On-call</div>
+                <div style="margin-top:.3rem;font-family:'Inter',sans-serif;font-size:.55rem;color:#a8a29e;">512 tok · 64 overlap</div>
+              </div>
+
+              <div style="border:1px dashed rgba(180,83,9,.5);border-radius:7px;padding:.55rem .65rem;background:#fff;">
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.06em;color:#b45309;margin-bottom:.25rem;">KB_GTM</div>
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#767676;line-height:1.5;">Channels · Messaging<br>Metrics · Objections</div>
+                <div style="margin-top:.3rem;font-family:'Inter',sans-serif;font-size:.55rem;color:#a8a29e;">512 tok · 64 overlap</div>
+              </div>
+
+              <div style="border:1px dashed rgba(109,40,217,.5);border-radius:7px;padding:.55rem .65rem;background:#fff;">
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.06em;color:#6d28d9;margin-bottom:.25rem;">KB_LAUNCH <span style="color:#a8a29e;font-weight:400;">+ all KBs</span></div>
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;color:#767676;line-height:1.5;">Roadmap · Budget<br>Stakeholders · Risks</div>
+                <div style="margin-top:.3rem;font-family:'Inter',sans-serif;font-size:.55rem;color:#a8a29e;">Full access · 3 namespaces</div>
+              </div>
+
+            </div>
+
+            <!-- ── Pinecone Vector Store ── -->
+            <div style="border:1px solid #ddd8d0;border-radius:7px;padding:.5rem .85rem;background:#fff;margin-bottom:.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <span style="font-size:.9rem;">🗄</span>
+                <div>
+                  <span style="font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:#1a1a2e;">Pinecone</span>
+                  <span style="font-family:'Inter',sans-serif;font-size:.58rem;color:#767676;margin-left:.4rem;">Vector Store</span>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <span style="font-family:'Inter',sans-serif;font-size:.58rem;background:#f0ece6;border:1px solid #ddd8d0;padding:.15rem .4rem;border-radius:3px;color:#767676;">nightingale-launch</span>
+                <span style="font-family:'Inter',sans-serif;font-size:.58rem;background:#f0ece6;border:1px solid #ddd8d0;padding:.15rem .4rem;border-radius:3px;color:#767676;">text-embedding-3-small</span>
+                <span style="font-family:'Inter',sans-serif;font-size:.58rem;background:#f0ece6;border:1px solid #ddd8d0;padding:.15rem .4rem;border-radius:3px;color:#767676;">1536-dim · cosine</span>
+              </div>
+            </div>
+
+            <!-- ── LAYER 5: Infrastructure ── -->
+            <div style="border-top:1px solid #e8e6e1;padding-top:.65rem;">
+              <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.5rem;">Infrastructure</div>
+              <div class="card-grid-2" style="gap:.4rem;">
+                <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.45rem .6rem;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                  <span style="font-size:.9rem;">🤖</span>
+                  <div><div style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:600;color:#1a1a2e;">Anthropic Claude API</div><div style="font-family:'Inter',sans-serif;font-size:.55rem;color:#767676;">claude-sonnet-4-6 · direct browser access</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.45rem .6rem;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                  <span style="font-size:.9rem;">📄</span>
+                  <div><div style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:600;color:#1a1a2e;">GitHub Pages</div><div style="font-family:'Inter',sans-serif;font-size:.55rem;color:#767676;">Static hosting · no backend · CDN cache</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.45rem .6rem;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                  <span style="font-size:.9rem;">🎙</span>
+                  <div><div style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:600;color:#1a1a2e;">Web Speech API</div><div style="font-family:'Inter',sans-serif;font-size:.55rem;color:#767676;">STT input · SpeechSynthesis TTS · Daniel voice</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.45rem .6rem;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                  <span style="font-size:.9rem;">🔑</span>
+                  <div><div style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:600;color:rgba(255,255,255,.75);">sessionStorage</div><div style="font-family:'Inter',sans-serif;font-size:.55rem;color:rgba(255,255,255,.3);">API key scoped to tab session · no server exposure</div></div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /dark container -->
+        </div>
+
+      </div>
+  </div><!-- #tab-overview -->
+
+  <!-- Tab 2: Launch Command Center (chat + sidebar) -->
+  <div id="tab-chat" class="tab-panel">
+  <div class="body-row">
+
+    <!-- Chat column -->
+    <div class="chat-col">
+      <div id="chat">
+
+      <!-- Static info sections — inside chat, greeter prepended before these via JS -->
+      <div class="greeter-info" id="greeter-info">
+
+        <!-- Agent orbit diagram -->
+        <div class="agent-orbit-wrap">
+          <div class="orbit-row">
+            <!-- Person -->
+            <div class="orbit-node">
+              <div class="orbit-person">🧑</div>
+              <div class="orbit-label">You</div>
+            </div>
+            <span class="orbit-arrow-wrap"><span class="orbit-arrow">›</span></span>
+            <!-- Greeter ball -->
+            <div class="orbit-node">
+              <div class="orbit-ball" id="ob-g" style="background:radial-gradient(circle at 35% 35%,#b0b0b0,#606060,#2a2a2a)">G</div>
+              <div class="orbit-label">Greeter</div>
+            </div>
+            <span class="orbit-arrow-wrap"><span class="orbit-arrow">›</span></span>
+            <!-- Technical ball -->
+            <div class="orbit-node">
+              <div class="orbit-ball" id="ob-t" style="background:radial-gradient(circle at 35% 35%,#6ecfa0,#2d6a4f,#0f3320)">T</div>
+              <div class="orbit-label">Technical<br>Readiness</div>
+            </div>
+            <span class="orbit-arrow-wrap"><span class="orbit-arrow">›</span></span>
+            <!-- GTM ball -->
+            <div class="orbit-node">
+              <div class="orbit-ball" id="ob-m" style="background:radial-gradient(circle at 35% 35%,#f0c060,#b45309,#6b2e00)">M</div>
+              <div class="orbit-label">GTM &amp;<br>Marketing</div>
+            </div>
+            <span class="orbit-arrow-wrap"><span class="orbit-arrow">›</span></span>
+            <!-- Executive ball -->
+            <div class="orbit-node">
+              <div class="orbit-ball" id="ob-e" style="background:radial-gradient(circle at 35% 35%,#b48df0,#6d28d9,#320a7a)">E</div>
+              <div class="orbit-label">Executive<br>Briefing</div>
+            </div>
+            <span class="orbit-arrow-wrap"><span class="orbit-arrow">›</span></span>
+            <!-- Wave -->
+            <div class="orbit-node">
+              <div class="orbit-wave">～</div>
+              <div class="orbit-label">Response</div>
+            </div>
+          </div>
+          <div class="orbit-caption">Ask anything — the right specialist responds automatically</div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-head">How Agents Transfer</div>
+          <div class="info-section-body">
+            <div class="routing-diagram">
+              <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#767676"></span>Greeter</div><span class="route-arrow">→</span><div class="route-targets">Routes to <b>Technical</b>, <b>GTM</b>, or <b>Executive</b> based on your first question</div></div>
+              <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#2d6a4f"></span>Technical</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>GTM</b> for marketing/press. Transfers to <b>Executive</b> for summary or budget.</div></div>
+              <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#b45309"></span>GTM</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>Technical</b> for bugs/deployment. Transfers to <b>Executive</b> for status overview.</div></div>
+              <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#6d28d9"></span>Executive</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>Technical</b> or <b>GTM</b> if you drill into specifics.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-head">Cross-Routing</div>
+          <div class="info-section-body" style="font-size:.78rem;color:var(--muted);line-height:1.7;">
+            <p style="margin-bottom:.5rem;"><strong style="color:var(--ink);">Any specialist can hand off mid-conversation</strong> — routing is transparent to you.</p>
+            <p style="margin-bottom:.5rem;">Say <em>"now tell me about marketing"</em> while in Technical and it switches automatically.</p>
+            <p>Up to <strong style="color:var(--ink);">3 hops</strong> per message before a clarification prompt.</p>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-head">Agents &amp; Roles</div>
+          <div class="info-section-body">
+            <table class="agent-table">
+              <tr><td><span class="dot" style="background:#767676"></span>Greeter</td><td>Welcomes you, detects intent, routes to the right specialist</td></tr>
+              <tr><td><span class="dot" style="background:#2d6a4f"></span>Technical</td><td>Sprint status, QA, bugs, deployment, rollback, on-call, architecture</td></tr>
+              <tr><td><span class="dot" style="background:#b45309"></span>GTM</td><td>Campaigns, press, messaging, competitive, sales enablement</td></tr>
+              <tr><td><span class="dot" style="background:#6d28d9"></span>Executive</td><td>High-level status, risks, budget, milestones — full KB access</td></tr>
+            </table>
+          </div>
+        </div>
+      </div><!-- #greeter-info -->
+      </div><!-- #chat -->
+
+      <footer>
+        <div class="footer-inner">
+          <div class="input-row">
+            <textarea id="msg" rows="1" placeholder="Ask about Project Nightingale..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="btn" id="voiceBtn" title="Voice input" onclick="toggleVoice()">🎤</button>
+            <button class="btn" id="sendBtn" onclick="send()">➤</button>
+          </div>
+          <div class="footer-meta">
+            <div id="voiceStatus"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button id="sidebarToggle" onclick="toggleSidebar()">☰ Sidebar</button>
+              <button id="resetBtn" onclick="resetChat()">↺ Reset</button>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar">
+
+      <!-- Sample Questions -->
+      <div class="sidebar-section">
+        <div class="sidebar-kicker">Questions to Ask</div>
+
+        <div class="q-group">
+          <div class="q-group-label">🟢 Technical</div>
+          <span class="q-item" onclick="useQ(this)">What sprint are we on?</span>
+          <span class="q-item" onclick="useQ(this)">What is our sprint status?</span>
+          <span class="q-item" onclick="useQ(this)">How many bugs are open?</span>
+          <span class="q-item" onclick="useQ(this)">Are there any critical bugs?</span>
+          <span class="q-item" onclick="useQ(this)">Tell me about the architecture.</span>
+          <span class="q-item" onclick="useQ(this)">What services are used?</span>
+          <span class="q-item" onclick="useQ(this)">What are the rollback criteria?</span>
+          <span class="q-item" onclick="useQ(this)">What is our deployment strategy?</span>
+        </div>
+
+        <div class="q-group">
+          <div class="q-group-label">🟡 GTM &amp; Marketing</div>
+          <span class="q-item" onclick="useQ(this)">What is our go-to-market strategy?</span>
+          <span class="q-item" onclick="useQ(this)">What is our marketing strategy?</span>
+          <span class="q-item" onclick="useQ(this)">What is our campaign?</span>
+          <span class="q-item" onclick="useQ(this)">What is our campaign budget?</span>
+          <span class="q-item" onclick="useQ(this)">Tell me about our referral program.</span>
+          <span class="q-item" onclick="useQ(this)">What is our primary marketing message?</span>
+        </div>
+
+        <div class="q-group">
+          <div class="q-group-label">🟣 Executive</div>
+          <span class="q-item" onclick="useQ(this)">Give me an executive summary.</span>
+          <span class="q-item" onclick="useQ(this)">What are the top launch risks?</span>
+          <span class="q-item" onclick="useQ(this)">Are we on track for launch?</span>
+          <span class="q-item" onclick="useQ(this)">What are the next milestones?</span>
+        </div>
+
+        <div class="q-group">
+          <div class="q-group-label">💬 Other</div>
+          <span class="q-item" onclick="useQ(this)">Who are you?</span>
+          <span class="q-item" onclick="useQ(this)">Thanks, goodbye.</span>
+        </div>
+      </div>
+
+    </aside>
+  </div><!-- .body-row -->
+  </div><!-- #tab-chat -->
+</div><!-- #app -->
+
+<script>
+// ── Knowledge Bases ──────────────────────────────────────────────
+const KB_LAUNCH = "# Project Nightingale — Product Launch Plan\n## Mobile App v3.0: Redesigned Checkout + Loyalty Program\n## Launch Date: April 15, 2026\n\n---\n\n## Launch Overview\nProject Nightingale is the launch of our mobile app version 3.0, which includes two major features: a completely redesigned checkout experience and a new customer loyalty program called \"Perks.\" This is our biggest product launch of the year. The launch will be a staged rollout: 5% of users on April 15, 25% on April 18, 50% on April 22, and 100% on April 25.\n\n---\n\n## Feature: Redesigned Checkout\n- One-tap checkout for returning customers with saved payment methods\n- Guest checkout option (no account required)\n- Apple Pay and Google Pay support\n- Real-time delivery estimate shown before payment\n- Address auto-complete powered by Google Places API\n- Estimated conversion rate improvement: 18-22% based on A/B testing during beta\n- Beta test results: 4,200 users tested over 3 weeks. Average checkout time dropped from 72 seconds to 38 seconds. Cart abandonment rate dropped from 34% to 19%.\n\n## Feature: Loyalty Program (\"Perks\")\n- Points earned on every purchase: 1 point per dollar spent\n- Tier system: Bronze (0-499 points), Silver (500-1499 points), Gold (1500+ points)\n- Silver perks: Free shipping on orders over $25, early access to sales\n- Gold perks: Free shipping on all orders, exclusive products, birthday bonus (500 points)\n- Points expire after 12 months of account inactivity\n- Integration with existing user accounts (no separate sign-up needed)\n- Projected enrollment: 40% of active users within first 90 days based on competitive benchmarks\n\n---\n\n## Go-To-Market Plan\n\n### Marketing Timeline\n- March 25: Teaser email to existing customers\n- April 1: Blog post announcing v3.0 features\n- April 8: Early access invite to Gold-tier beta testers\n- April 10: Press embargo lifts\n- April 15: Launch day — app store update goes live\n- April 15-30: Paid social campaign (Instagram, TikTok, YouTube) — budget $45,000\n- April 22: Referral bonus campaign: \"Share Perks, Get Perks\"\n\n### Customer Support Readiness\n- Support team training sessions: April 7 and April 9\n- New FAQ document covering top 25 anticipated questions published April 5\n- Temporary support staff: 4 additional agents hired for April 15-30 surge period\n- Escalation path: Tier 1 → Tier 2 → Engineering on-call\n- Expected support volume increase: 35-40% above normal for first two weeks\n\n---\n\n## Stakeholders\n- Executive Sponsor: VP Product — Diana Walsh\n- PM: Sam Torres | TPM: Rachel Nguyen\n- Engineering Lead: Kai Matsumoto | QA Lead: Aisha Patel\n- Marketing Lead: James Whitfield | Sales Lead: Nadia Petrova\n\n## Success Metrics (First 30 Days)\n- Checkout conversion rate: +15%\n- Cart abandonment: below 22%\n- Loyalty enrollment: 40% of MAU\n- App store rating: 4.5+ stars\n- Payment failure rate: below 1.5%\n\n## Risk Register\n- Stripe payment failures on launch day: Medium likelihood / High impact — fallback to PayPal\n- App store review delay: Low / High — 7-day buffer built in\n- Loyalty points calculation error: Low / Medium — 98% unit test coverage\n- Support team overwhelmed: Medium / Medium — 4 temp agents hired\n\n## Budget Summary\n- Total: $220,000 | Spent: $185,000 (84%) | Remaining: $35,000\n- Engineering: $120,000 | Marketing: $65,000 | Support: $20,000 | Contingency: $15,000\n- Projected total: $210,000 (under budget)\n\n## Post-Launch Plan\n- April 17: v3.0.1 hotfix (tablet layout)\n- April 22: Weekly metrics review with exec team\n- April 30: Full retrospective\n- May 15: v3.1 release\n- June 1: 45-day loyalty impact analysis for board";
+
+const KB_TECHNICAL = "# Project Nightingale — Technical Readiness\n## Last Updated: March 5, 2026\n\n## Sprint Status (Sprint 9 of 11)\n\n### Completed\n- Checkout redesign (mobile + desktop) — DONE\n- Guest checkout flow — DONE\n- Apple Pay integration — DONE\n- Google Pay integration — DONE\n- Loyalty points earning engine — DONE\n- Loyalty tier calculation service — DONE\n- Perks dashboard UI (mobile) — DONE\n- One-tap checkout for returning users — DONE\n- Load testing at 10x traffic — DONE (passed)\n- Database migration for loyalty tables — DONE\n- Payment failure fallback to PayPal — DONE\n- Rollback mechanism via feature flags — DONE\n\n### In Progress\n- Points redemption at checkout (85% complete)\n- Perks dashboard UI for tablets (70% complete, known layout issue on landscape)\n- Final QA regression suite (60% complete, 847 of 1,400 test cases, 12 bugs found, 8 fixed, 4 in progress)\n- Analytics event tracking (80% complete)\n\n### Not Started (Sprint 10-11)\n- A/B test configuration for staged rollout\n- App store submission and review\n- Production environment final validation\n- Security penetration testing (scheduled March 18)\n\n## Architecture\n- Frontend: React Native (iOS + Android), Next.js web\n- Checkout Service: Node.js microservice\n- Payments: Stripe (primary), PayPal (fallback)\n- Loyalty Service: Python microservice\n- Notifications: AWS SES (email), Firebase (push)\n- Database: PostgreSQL (primary), Redis (caching)\n- CDN: CloudFront | Monitoring: Datadog + PagerDuty + Sentry\n\n## API Performance\n- Checkout API: p50=120ms, p99=340ms (target <500ms) ✅\n- Loyalty Points API: p50=45ms, p99=180ms ✅\n- Payment Processing: p50=800ms, p99=2.1s (Stripe SLA) ✅\n- Address Autocomplete: p50=90ms, p99=250ms ✅\n\n## QA Status\n- Unit tests: 98% coverage (checkout), 95% (loyalty)\n- Integration: 142 scenarios, 138 passing, 4 flaky\n- E2E: 87 critical journeys, all passing\n- Load test: 10x traffic for 2 hours, zero errors\n- Bugs — Critical: 0 | High: 2 (tablet cosmetic) | Medium: 4 | Low: 8 (deferred)\n\n## Deployment Plan\n- April 15: 5% canary rollout\n- April 18: 25% (if clean at 5%)\n- April 22: 50%\n- April 25: 100%\n\n## Rollback Criteria (auto-trigger ANY of)\n- Payment failure rate >3% for 15 consecutive minutes\n- Checkout API p99 >1 second for 10 consecutive minutes\n- 50+ identical Sentry errors within 5 minutes\n- App crash rate >0.5%\n- Rollback time: under 15 minutes via feature flags (tested 3x in staging)\n\n## On-Call (Launch Week April 15-22)\n- Primary: Kai Matsumoto (Mon-Wed), Mei Chen (Thu-Sun)\n- Secondary: Sasha Volkov (full week)\n- Escalation: Diana Walsh (VP) signs off on any rollback\n\n## Dependencies\n- Stripe SDK v4.2: integrated, tested ✔\n- Google Places API: integrated, tested ✔\n- App Store submission: planned April 8 (7-day buffer) ⚠️\n- Play Store submission: planned April 8 (faster review) ⚠️";
+
+const KB_GTM = "# Project Nightingale — Go-To-Market & Marketing Playbook\n## Last Updated: March 5, 2026\n\n## Campaign: \"Checkout in a Snap, Earn While You Shop\"\nDuration: April 1-30, 2026 | Total Budget: $65,000\n\n## Channel Strategy\n\n### Email ($5,000)\n- March 25: Teaser to 180,000 users (\"Something big is coming\")\n- April 8: Early access to power users (~18,000)\n- April 15: Launch day email — \"It's here. Meet the new checkout + Perks.\"\n- April 22: Referral campaign — \"Share Perks, Get Perks\" (500 pts for referrer + referee)\n- Expected open rate: 28-32%\n\n### Paid Social ($45,000)\n- Instagram: $18,000 — carousel before/after checkout, Reels\n- TikTok: $15,000 — \"POV: checkout in 3 seconds\", 3 micro-influencers (50K-150K followers)\n- YouTube: $12,000 — 30-second pre-roll, checkout + Perks tier animation\n- Expected: 4.5-6M impressions | CPA: $2.50-3.50\n\n### PR & Media ($8,000)\n- Press kit to 25 publications on April 1\n- Embargo lifts April 10 — coordinated reviews go live\n- Targets: TechCrunch, The Verge, Retail Dive, Mobile Commerce Daily\n- TechCrunch exclusive offered (first look at Perks)\n\n### App Store Optimization ($2,000)\n- New screenshots, updated description, keyword optimization\n- Keywords: \"fast checkout\", \"loyalty rewards\", \"one tap payment\"\n\n### Organic Social ($5,000)\n- Twitter: daily countdown posts from April 8\n- Instagram Stories: behind-the-scenes design process\n- LinkedIn: VP Product thought leadership post\n- Reddit AMA with PM on April 16 (r/ecommerce, r/startups)\n\n## Key Messaging\nPrimary: \"Checkout in seconds. Earn rewards with every purchase. App v3.0 is here.\"\n\nStats approved for external use:\n- Checkout time: 72s → 38s (47% faster)\n- Cart abandonment: 34% → 19% in beta\n- 4,200 beta testers over 3 weeks\n- NPS: 72 (up from 54)\n\nDO NOT use externally: revenue projections, competitor names, exact budget figures\n\n## Competitive Landscape\n- ShopFast: has loyalty (no tiers), no one-tap → our advantage: tier system + modern checkout\n- QuickCart: one-tap but no guest checkout → our advantage: guest checkout + loyalty\n- BuyNow: loyalty but complex (6 tiers) → our advantage: simpler 3-tier, auto-enrollment\n\n## Sales Enablement\nKey talking points:\n1. Checkout converts 18-22% better — direct client bottom-line impact\n2. Perks auto-enrolls at Bronze — zero friction for clients to sell\n3. Only platform with one-tap + guest checkout + loyalty program\n4. 4,200 real beta users, data-proven\n\nObjection handling:\n- \"Won't sign up for loyalty\" → auto-enrollment, no sign-up needed\n- \"How different from ShopFast?\" → tiered rewards = 3x repeat purchases vs flat points\n- \"What about bugs?\" → 3 weeks beta, staged rollout, auto-rollback <15 min\n\n## Success Metrics\n- Email open rate: 30%+\n- App update rate (7 days): 60% of active users\n- Paid social CPA: under $3.50\n- Press coverage: 10+ articles in first week\n- Referral participation: 12% of recipients\n- Perks enrollment (30 days): 40% of active users";
+
+// ── Agent config ─────────────────────────────────────────────────
+const AGENT_LABELS = {
+  greeter:   'Greeter',
+  technical: 'Technical Readiness',
+  gtm:       'GTM & Marketing',
+  executive: 'Executive Briefing',
+};
+
+const AGENT_COLORS = {
+  greeter:   '#767676',
+  technical: '#2d6a4f',
+  gtm:       '#b45309',
+  executive: '#6d28d9',
+};
+
+const KB_ACCESS = {
+  greeter:   [],
+  technical: ['launch', 'tech'],
+  gtm:       ['launch', 'gtm'],
+  executive: ['launch', 'tech', 'gtm'],
+};
+
+function buildKB(agent) {
+  const access = KB_ACCESS[agent] || [];
+  let kb = '';
+  if (access.includes('launch'))   kb += KB_LAUNCH + '\n\n';
+  if (access.includes('tech'))     kb += KB_TECHNICAL + '\n\n';
+  if (access.includes('gtm'))      kb += KB_GTM;
+  return kb.trim();
+}
+
+const GLOBAL_RULES = `
+- Answer ONLY from the knowledge base. Never speculate or make up information.
+- Be concise. Lead with the most important fact first.
+- Use specific numbers, dates, and names from the documents.
+- If something is not in the knowledge base, say: "I don't have that in my launch documents — check directly with the relevant lead."
+- After answering, ask if they need anything else.
+- Never volunteer budget figures unless explicitly asked.
+- Never discuss individual team member performance.
+- Keep a professional but approachable tone.
+`.trim();
+
+const SYSTEM_PROMPTS = {
+  greeter: `You are the Greeter for the Project Nightingale Launch Command Center.
+Your ONLY job: welcome the caller and identify what they need. Do NOT answer questions yourself.
+Based on their message, end your response with EXACTLY one of:
+  ROUTE: technical
+  ROUTE: gtm
+  ROUTE: executive
+  ROUTE: end
+
+Routing rules:
+- technical → engineering, QA, bugs, deployment, rollback, sprint, API, infra, on-call
+- gtm → marketing, campaigns, press, PR, sales, competitive, messaging, channels
+- executive → status summary, risks, budget, timeline, "how are we doing", overall readiness
+- end → goodbye, done, thanks, quit
+
+${GLOBAL_RULES}`,
+
+  technical: `You are the Technical Readiness Specialist for Project Nightingale.
+Topics: sprint status, engineering, QA, bugs, deployment, staged rollout, rollback criteria, on-call, API performance, architecture, team allocation, dependencies.
+If the user asks about marketing/GTM/press/sales → end your response with: ROUTE: gtm
+If the user wants an executive summary/overall status/budget → end with: ROUTE: executive
+If the user is done → end with: ROUTE: end
+${GLOBAL_RULES}`,
+
+  gtm: `You are the GTM & Marketing Specialist for Project Nightingale.
+Topics: marketing campaigns, email, paid social, PR, press embargo, messaging, competitive landscape, sales enablement, success metrics.
+If the user asks about engineering/QA/bugs/deployment/technical topics → end with: ROUTE: technical
+If the user wants an executive summary/overall status/budget → end with: ROUTE: executive
+If the user is done → end with: ROUTE: end
+${GLOBAL_RULES}`,
+
+  executive: `You are the Executive Briefing Specialist for Project Nightingale. You have access to ALL knowledge base documents.
+Give high-level summaries for senior stakeholders. Lead with status verdict, top risk, then what's next. 3-5 sentences max unless asked for more.
+If user digs deep into technical details → end with: ROUTE: technical
+If user asks specifically about campaign tactics/channel details → end with: ROUTE: gtm
+If user is done → end with: ROUTE: end
+${GLOBAL_RULES}`,
+};
+
+// ── State ─────────────────────────────────────────────────────────
+let apiKey = '';
+let currentAgent = 'greeter';
+let history = [];
+let isListening = false;
+let recognition = null;
+const ROUTE_RE = /ROUTE:\s*(technical|gtm|executive|end)/i;
+
+// ── Sidebar toggle (mobile) ───────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.querySelector('.sidebar');
+  sb.classList.toggle('open');
+  document.getElementById('sidebarToggle').textContent =
+    sb.classList.contains('open') ? '✕ Sidebar' : '☰ Sidebar';
+}
+
+// ── Greeter info sections ─────────────────────────────────────────
+function buildGreeterInfo() {
+  const el = document.createElement('div');
+  el.className = 'greeter-info';
+  el.innerHTML = `
+    <div class="info-section">
+      <div class="info-section-head">How Agents Transfer</div>
+      <div class="info-section-body">
+        <div class="routing-diagram">
+          <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#767676"></span>Greeter</div><span class="route-arrow">→</span><div class="route-targets">Routes to <b>Technical</b>, <b>GTM</b>, or <b>Executive</b> based on your first question</div></div>
+          <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#2d6a4f"></span>Technical</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>GTM</b> for marketing/press. Transfers to <b>Executive</b> for summary or budget.</div></div>
+          <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#b45309"></span>GTM</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>Technical</b> for bugs/deployment. Transfers to <b>Executive</b> for status overview.</div></div>
+          <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#6d28d9"></span>Executive</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>Technical</b> or <b>GTM</b> if you drill into specifics.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="info-section-head">Cross-Routing</div>
+      <div class="info-section-body" style="font-size:.78rem;color:var(--muted);line-height:1.7;">
+        <p style="margin-bottom:.5rem;"><strong style="color:var(--ink);">Any specialist can hand off mid-conversation</strong> — routing is transparent to you.</p>
+        <p style="margin-bottom:.5rem;">Say <em>"now tell me about marketing"</em> while in Technical and it switches automatically — no restart needed.</p>
+        <p>Up to <strong style="color:var(--ink);">3 hops</strong> per message before a clarification prompt.</p>
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="info-section-head">Agents &amp; Roles</div>
+      <div class="info-section-body">
+        <table class="agent-table">
+          <tr><td><span class="dot" style="background:#767676"></span>Greeter</td><td>Welcomes you, detects intent, routes to the right specialist</td></tr>
+          <tr><td><span class="dot" style="background:#2d6a4f"></span>Technical</td><td>Sprint status, QA, bugs, deployment, rollback, on-call, architecture</td></tr>
+          <tr><td><span class="dot" style="background:#b45309"></span>GTM</td><td>Campaigns, press, messaging, competitive, sales enablement</td></tr>
+          <tr><td><span class="dot" style="background:#6d28d9"></span>Executive</td><td>High-level status, risks, budget, milestones — full KB access</td></tr>
+        </table>
+      </div>
+    </div>`;
+  return el;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && name === 'overview') || (i === 1 && name === 'chat'));
+  });
+  document.getElementById('tab-overview').classList.toggle('active', name === 'overview');
+  document.getElementById('tab-chat').classList.toggle('active', name === 'chat');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────
+function startApp() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key.startsWith('sk-')) {
+    alert('Please enter a valid Anthropic API key (starts with sk-)');
+    return;
+  }
+  apiKey = key;
+  sessionStorage.setItem('anthropic_key', key);
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  switchTab('chat');
+  greet();
+}
+
+// Check if key already in session
+window.addEventListener('load', () => {
+  const saved = sessionStorage.getItem('anthropic_key');
+  if (saved) {
+    document.getElementById('apiKeyInput').value = saved;
+  }
+  document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startApp();
+  });
+});
+
+function buildCarousel() {
+  const el = document.createElement('div');
+  el.id = 'info-carousel';
+  el.innerHTML = `
+    <div class="carousel-header">
+      <div class="carousel-kicker" id="carouselTitle">${SLIDE_TITLES[0]}</div>
+      <div class="carousel-dots">
+        <span class="cdot active" onclick="goSlide(0)"></span>
+        <span class="cdot" onclick="goSlide(1)"></span>
+        <span class="cdot" onclick="goSlide(2)"></span>
+      </div>
+    </div>
+    <div class="carousel-slide active" id="slide-0">
+      <div class="routing-diagram">
+        <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#767676"></span>Greeter</div><span class="route-arrow">→</span><div class="route-targets">Routes to <b>Technical</b>, <b>GTM</b>, or <b>Executive</b> based on your first question</div></div>
+        <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#2d6a4f"></span>Technical</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>GTM</b> for marketing/press. Transfers to <b>Executive</b> for summary or budget.</div></div>
+        <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#b45309"></span>GTM</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>Technical</b> for bugs/deployment. Transfers to <b>Executive</b> for status overview.</div></div>
+        <div class="route-row"><div class="route-from"><span class="route-dot" style="background:#6d28d9"></span>Executive</div><span class="route-arrow">→</span><div class="route-targets">Transfers to <b>Technical</b> or <b>GTM</b> if you drill into specifics.</div></div>
+      </div>
+    </div>
+    <div class="carousel-slide" id="slide-1">
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.7;">
+        <p style="margin-bottom:.5rem;"><strong style="color:var(--ink);">Any specialist can hand off mid-conversation</strong> — routing is transparent to you.</p>
+        <p style="margin-bottom:.5rem;">Say <em>"now tell me about marketing"</em> while in Technical and it switches automatically — no restart needed.</p>
+        <p style="margin-bottom:.5rem;">The Greeter only runs once. After the first route, specialists cross-route directly.</p>
+        <p>Up to <strong style="color:var(--ink);">3 hops</strong> per message before a clarification prompt.</p>
+      </div>
+    </div>
+    <div class="carousel-slide" id="slide-2">
+      <table class="agent-table">
+        <tr><td><span class="dot" style="background:#767676"></span>Greeter</td><td>Welcomes you, detects intent, routes to the right specialist</td></tr>
+        <tr><td><span class="dot" style="background:#2d6a4f"></span>Technical</td><td>Sprint status, QA, bugs, deployment, rollback, on-call, architecture</td></tr>
+        <tr><td><span class="dot" style="background:#b45309"></span>GTM</td><td>Campaigns, press, messaging, competitive, sales enablement</td></tr>
+        <tr><td><span class="dot" style="background:#6d28d9"></span>Executive</td><td>High-level status, risks, budget, milestones — full KB access</td></tr>
+      </table>
+    </div>`;
+  return el;
+}
+
+function greet() {
+  const text = "Hi! Welcome to the Project Nightingale Launch Command Center. I can help with technical readiness and engineering status, marketing and go-to-market updates, or a high-level executive briefing. What are you looking for today?";
+  const chat = document.getElementById('chat');
+  const info = document.getElementById('greeter-info');
+  const d = document.createElement('div');
+  d.className = 'msg bot greeter-msg';
+  d.innerHTML = `${agentAvatar('greeter')}<div class="bubble"><div class="agent-tag greeter">Greeter</div><div>${esc(text)}</div></div>`;
+  chat.insertBefore(d, info);
+  setAgent('greeter');
+  speak(text);
+}
+
+// ── Claude API call ───────────────────────────────────────────────
+async function callClaude(agent, userMessage) {
+  const kb = buildKB(agent);
+  const systemPrompt = kb
+    ? `${SYSTEM_PROMPTS[agent]}\n\n---\n## KNOWLEDGE BASE\n\n${kb}`
+    : SYSTEM_PROMPTS[agent];
+
+  const messages = [...history, { role: 'user', content: userMessage }];
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+// ── Chat logic ────────────────────────────────────────────────────
+async function send() {
+  const input = document.getElementById('msg');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  autoResize(input);
+
+  addUserMsg(text);
+  const thinking = addThinking();
+  document.getElementById('sendBtn').disabled = true;
+
+  try {
+    let maxHops = 3, hops = 0, response, route;
+
+    while (hops < maxHops) {
+      response = await callClaude(currentAgent, text);
+      hops++;
+      const m = ROUTE_RE.exec(response);
+      route = m ? m[1].toLowerCase() : null;
+      const clean = response.replace(ROUTE_RE, '').trim();
+
+      if (route === 'end') {
+        thinking.remove();
+        const farewell = "Thanks for checking in on Project Nightingale. Good luck with the launch!";
+        addBotMsg(farewell, currentAgent);
+        speak(farewell);
+        history.push({ role: 'user', content: text });
+        history.push({ role: 'assistant', content: farewell });
+        return;
+      }
+
+      if (route && route !== currentAgent) {
+        currentAgent = route;
+        setAgent(currentAgent);
+        continue;
+      }
+
+      thinking.remove();
+      addBotMsg(clean, currentAgent);
+      speak(clean);
+      history.push({ role: 'user', content: text });
+      history.push({ role: 'assistant', content: clean });
+      return;
+    }
+
+    thinking.remove();
+    addBotMsg("I'm having trouble routing your question — could you rephrase it?", currentAgent);
+  } catch(e) {
+    thinking.remove();
+    addBotMsg(`Error: ${e.message}`, 'greeter');
+  } finally {
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('msg').focus();
+  }
+}
+
+function resetChat() {
+  window.speechSynthesis?.cancel();
+  currentAgent = 'greeter';
+  history = [];
+  document.getElementById('chat').innerHTML = '';
+  // info cards live in tab-overview — not touched by reset
+  setAgent('greeter');
+  greet();
+}
+
+// ── DOM helpers ───────────────────────────────────────────────────
+function addUserMsg(text) {
+  const chat = document.getElementById('chat');
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  d.innerHTML = `<div class="avatar">👤</div><div class="bubble">${esc(text)}</div>`;
+  chat.appendChild(d);
+  scrollBottom();
+}
+
+const AGENT_BALLS = {
+  greeter:   'radial-gradient(circle at 35% 35%, #b0b0b0, #606060, #2a2a2a)',
+  technical: 'radial-gradient(circle at 35% 35%, #6ecfa0, #2d6a4f, #0f3320)',
+  gtm:       'radial-gradient(circle at 35% 35%, #f0c060, #b45309, #6b2e00)',
+  executive: 'radial-gradient(circle at 35% 35%, #b48df0, #6d28d9, #320a7a)',
+};
+
+function agentAvatar(agent) {
+  const grad = AGENT_BALLS[agent] || AGENT_BALLS.greeter;
+  const initial = { greeter:'G', technical:'T', gtm:'M', executive:'E' }[agent] || '?';
+  return `<div class="avatar" style="background:${grad};border:none;box-shadow:inset -2px -2px 5px rgba(0,0,0,.35),inset 1px 1px 4px rgba(255,255,255,.3),0 2px 6px rgba(0,0,0,.2);color:#fff;font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.4);">${initial}</div>`;
+}
+
+function addBotMsg(text, agent) {
+  const chat = document.getElementById('chat');
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = `
+    ${agentAvatar(agent)}
+    <div class="bubble">
+      <div class="agent-tag ${agent}">${AGENT_LABELS[agent] || agent}</div>
+      <div>${esc(text)}</div>
+    </div>`;
+  chat.appendChild(d);
+  setAgent(agent);
+  scrollBottom();
+}
+
+function addThinking() {
+  const chat = document.getElementById('chat');
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = `<div class="avatar">🤖</div><div class="bubble"><div class="thinking"><b></b><b></b><b></b></div></div>`;
+  chat.appendChild(d);
+  scrollBottom();
+  return d;
+}
+
+function setAgent(agent) {
+  const dot = document.getElementById('agentDot');
+  const name = document.getElementById('agentName');
+  dot.style.background = AGENT_COLORS[agent] || '#767676';
+  name.textContent = AGENT_LABELS[agent] || agent;
+
+  // KB strip
+  ['launch','tech','gtm'].forEach(k => {
+    document.getElementById('kb-'+k).classList.toggle('on', KB_ACCESS[agent]?.includes(k));
+  });
+}
+
+function scrollBottom() {
+  const c = document.getElementById('chat');
+  c.scrollTop = c.scrollHeight;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ── Voice input (Web Speech API) ─────────────────────────────────
+function toggleVoice() {
+  isListening ? stopListening() : startListening();
+}
+
+function startListening() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { setVoiceStatus('Voice not supported — try Chrome'); return; }
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('voiceBtn').classList.add('recording');
+    setVoiceStatus('🎤 Listening...');
+  };
+  recognition.onresult = (e) => {
+    const t = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('msg').value = t;
+    autoResize(document.getElementById('msg'));
+    if (e.results[0].isFinal) stopListening();
+  };
+  recognition.onerror  = () => stopListening();
+  recognition.onend    = () => stopListening();
+  recognition.start();
+}
+
+function stopListening() {
+  isListening = false;
+  recognition?.stop();
+  document.getElementById('voiceBtn').classList.remove('recording');
+  setTimeout(() => setVoiceStatus(''), 2000);
+}
+
+function setVoiceStatus(msg) {
+  document.getElementById('voiceStatus').textContent = msg;
+}
+
+// ── Voice output (Web Speech Synthesis) ──────────────────────────
+// Male narrator preference order: Daniel (UK, deep/warm), Alex (macOS),
+// Google UK English Male, Tom, Fred — then fallback to any en-US male
+const MALE_VOICE_PREFS = [
+  'Daniel',               // macOS/iOS — British, warm, deep
+  'Google UK English Male',
+  'Alex',                 // macOS — neutral American male
+  'Tom',                  // macOS
+  'Fred',                 // macOS
+  'Google US English',    // Chrome — often male-leaning
+  'Aaron',                // macOS Ventura+
+  'Arthur',               // macOS — British male
+  'Gordon',
+  'Reed',
+];
+
+let _narratorVoice = null;
+
+function getNarratorVoice() {
+  if (_narratorVoice) return _narratorVoice;
+  const voices = speechSynthesis.getVoices();
+  for (const pref of MALE_VOICE_PREFS) {
+    const v = voices.find(v => v.name.includes(pref));
+    if (v) { _narratorVoice = v; return v; }
+  }
+  // Fallback: any en-US voice
+  return voices.find(v => v.lang === 'en-US') || null;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate  = 0.92;   // calm, measured pace
+  utt.pitch = 0.88;   // slightly lower — warm, confident
+  utt.volume = 1.0;
+  const v = getNarratorVoice();
+  if (v) utt.voice = v;
+  window.speechSynthesis.speak(utt);
+}
+
+// Voices load async in Chrome — reset cache on change
+speechSynthesis.onvoiceschanged = () => { _narratorVoice = null; };
+
+// ── Utilities ─────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+}
+
+function useHint(el) {
+  document.getElementById('msg').value = el.textContent;
+  send();
+}
+
+function useQ(el) {
+  document.getElementById('msg').value = el.textContent.trim();
+  send();
+}
+</script>
+</body>
+</html>
