@@ -920,6 +920,207 @@
               </div>
             </div>
 
+          <!-- ── KNOWLEDGE BASE MANIFEST ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Knowledge Base Manifest — 3 Files</div>
+            <div style="display:flex;flex-direction:column;gap:.25rem;">
+
+              <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:5px;padding:.35rem .6rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#2d6a4f;flex-shrink:0;"></span>
+                <div style="flex:1;">
+                  <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;color:#2d6a4f;">KB_TECHNICAL</span>
+                  <span style="font-family:'Inter',sans-serif;font-size:.55rem;color:#a8a29e;margin-left:.3rem;">→ Technical agent only</span>
+                </div>
+                <span style="font-family:'Inter',sans-serif;font-size:.55rem;color:#767676;">Sprint status · QA · APIs · Deploy · Rollback · On-call</span>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:5px;padding:.35rem .6rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#b45309;flex-shrink:0;"></span>
+                <div style="flex:1;">
+                  <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;color:#b45309;">KB_GTM</span>
+                  <span style="font-family:'Inter',sans-serif;font-size:.55rem;color:#a8a29e;margin-left:.3rem;">→ GTM agent only</span>
+                </div>
+                <span style="font-family:'Inter',sans-serif;font-size:.55rem;color:#767676;">Channels · Messaging · Competitive · Sales · Metrics</span>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #e8e6e1;border-radius:5px;padding:.35rem .6rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#6d28d9;flex-shrink:0;"></span>
+                <div style="flex:1;">
+                  <span style="font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;color:#6d28d9;">KB_LAUNCH</span>
+                  <span style="font-family:'Inter',sans-serif;font-size:.55rem;color:#a8a29e;margin-left:.3rem;">→ All agents (Executive gets all 3)</span>
+                </div>
+                <span style="font-family:'Inter',sans-serif;font-size:.55rem;color:#767676;">Roadmap · Stakeholders · Budget · Risks · Milestones</span>
+              </div>
+
+            </div>
+            <div style="font-family:'Inter',sans-serif;font-size:.52rem;color:#a8a29e;text-align:center;margin-top:.35rem;">KB files embedded as JS string constants in launch.html — each agent only receives its scoped files via <code style="font-size:.5rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">buildKB(agent)</code></div>
+          </div>
+
+          <!-- ── AGENT ACCESS MATRIX ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Agent KB Access Matrix</div>
+            <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden;">
+              <table style="width:100%;font-family:'Inter',sans-serif;font-size:.6rem;border-collapse:collapse;">
+                <thead>
+                  <tr style="background:var(--surface);">
+                    <th style="text-align:left;padding:.4rem .6rem;font-weight:700;color:var(--ink);border-bottom:1px solid #e8e6e1;">Agent</th>
+                    <th style="text-align:center;padding:.4rem .6rem;font-weight:700;color:#2d6a4f;border-bottom:1px solid #e8e6e1;">KB_TECHNICAL</th>
+                    <th style="text-align:center;padding:.4rem .6rem;font-weight:700;color:#b45309;border-bottom:1px solid #e8e6e1;">KB_GTM</th>
+                    <th style="text-align:center;padding:.4rem .6rem;font-weight:700;color:#6d28d9;border-bottom:1px solid #e8e6e1;">KB_LAUNCH</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style="padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Greeter (G)</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;">✗</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;">✗</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;">✗</td></tr>
+                  <tr><td style="padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#2d6a4f;font-weight:600;">Technical (T)</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#2d6a4f;">✅</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;">✗</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#6d28d9;">✅</td></tr>
+                  <tr><td style="padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#b45309;font-weight:600;">GTM (M)</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;">✗</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#b45309;">✅</td><td style="text-align:center;padding:.35rem .6rem;border-bottom:1px solid #f4f3f0;color:#6d28d9;">✅</td></tr>
+                  <tr style="background:#f8f4ee;"><td style="padding:.35rem .6rem;color:#6d28d9;font-weight:600;">Executive (E)</td><td style="text-align:center;padding:.35rem .6rem;color:#2d6a4f;">✅</td><td style="text-align:center;padding:.35rem .6rem;color:#b45309;">✅</td><td style="text-align:center;padding:.35rem .6rem;color:#6d28d9;">✅</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ── ORCHESTRATION LOGIC ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Orchestration Logic</div>
+            <div class="card-grid-3" style="padding:0;gap:.4rem;">
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.55rem .6rem;">
+                <div style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:#1a1a2e;margin-bottom:.25rem;">🔀 ROUTE: Signal</div>
+                <div style="font-size:.55rem;color:#767676;line-height:1.5;">
+                  Agent emits <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;color:#b85042;">ROUTE:technical</code> in response<br>
+                  JS parses via <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">ROUTE_RE</code> regex<br>
+                  Switches <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">currentAgent</code> + rebuilds system prompt<br>
+                  Up to <strong style="color:var(--ink);">3 hops</strong> per message
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.55rem .6rem;">
+                <div style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:#1a1a2e;margin-bottom:.25rem;">💬 Conversation</div>
+                <div style="font-size:.55rem;color:#767676;line-height:1.5;">
+                  <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">history[]</code> — full message array<br>
+                  Passed to every API call as <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">messages</code><br>
+                  <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">resetChat()</code> clears history + DOM<br>
+                  Agent context survives within session
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.55rem .6rem;">
+                <div style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:#1a1a2e;margin-bottom:.25rem;">🎤 Voice Pipeline</div>
+                <div style="font-size:.55rem;color:#767676;line-height:1.5;">
+                  <strong style="color:var(--ink);">STT:</strong> Web Speech API <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">SpeechRecognition</code><br>
+                  <strong style="color:var(--ink);">TTS:</strong> <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">SpeechSynthesis</code><br>
+                  Voice: Daniel · rate 0.92 · pitch 0.88<br>
+                  Toggle via mic button in input bar
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── ROUTING TABLE ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Routing Table — Intent Classification</div>
+            <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden;">
+              <table style="width:100%;font-family:'Inter',sans-serif;font-size:.58rem;border-collapse:collapse;">
+                <thead>
+                  <tr style="background:var(--surface);">
+                    <th style="text-align:left;padding:.4rem .6rem;font-weight:700;color:var(--ink);border-bottom:1px solid #e8e6e1;">User asks about</th>
+                    <th style="text-align:left;padding:.4rem .6rem;font-weight:700;color:var(--ink);border-bottom:1px solid #e8e6e1;">Routes to</th>
+                    <th style="text-align:left;padding:.4rem .6rem;font-weight:700;color:var(--ink);border-bottom:1px solid #e8e6e1;">Signal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Engineering, QA, sprints, deployment, rollback, APIs</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#2d6a4f;font-weight:600;">Technical (T)</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;"><code style="font-size:.52rem;background:#f0fdf6;padding:1px 3px;border-radius:2px;color:#2d6a4f;">ROUTE:technical</code></td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Campaigns, press, messaging, competitive, sales</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#b45309;font-weight:600;">GTM (M)</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;"><code style="font-size:.52rem;background:#fffbf0;padding:1px 3px;border-radius:2px;color:#b45309;">ROUTE:gtm</code></td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Status overview, budget, risks, milestones, KPIs</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#6d28d9;font-weight:600;">Executive (E)</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;"><code style="font-size:.52rem;background:#f8f5ff;padding:1px 3px;border-radius:2px;color:#6d28d9;">ROUTE:executive</code></td></tr>
+                  <tr><td style="padding:.3rem .6rem;color:#767676;">Goodbye, thanks, done</td><td style="padding:.3rem .6rem;color:#767676;">End conversation</td><td style="padding:.3rem .6rem;"><code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">ROUTE:end</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="font-family:'Inter',sans-serif;font-size:.52rem;color:#a8a29e;text-align:center;margin-top:.3rem;">Cross-routing: specialists can also emit ROUTE: to transfer to each other mid-conversation</div>
+          </div>
+
+          <!-- ── ENVIRONMENT & CONFIG ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Environment & Config</div>
+            <div class="card-grid-2" style="padding:0;gap:.4rem;">
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.5rem .6rem;">
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;color:#1a1a2e;margin-bottom:.2rem;">🔑 API Configuration</div>
+                <div style="font-size:.55rem;color:#767676;line-height:1.65;">
+                  <strong style="color:var(--ink);">Model:</strong> <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">claude-sonnet-4-6</code><br>
+                  <strong style="color:var(--ink);">Header:</strong> <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">anthropic-dangerous-direct-browser-access: true</code><br>
+                  <strong style="color:var(--ink);">Key storage:</strong> <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">sessionStorage</code> (per-tab, never server-exposed)<br>
+                  <strong style="color:var(--ink);">Hosting:</strong> GitHub Pages — static, no backend
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:7px;padding:.5rem .6rem;">
+                <div style="font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;color:#1a1a2e;margin-bottom:.2rem;">🎨 Design System</div>
+                <div style="font-size:.55rem;color:#767676;line-height:1.65;">
+                  <strong style="color:var(--ink);">Fonts:</strong> Cormorant Garamond (italic) + Inter (body)<br>
+                  <strong style="color:var(--ink);">Background:</strong> <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">#f8f4ee</code> (matches vjra.foundation)<br>
+                  <strong style="color:var(--ink);">Accent:</strong> <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">#b85042</code><br>
+                  <strong style="color:var(--ink);">Breakpoints:</strong> 768px / 480px mobile responsive
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── VECTOR DB (PRODUCTION DESIGN) ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Production Design — Vector DB (not used in static demo)</div>
+            <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden;">
+              <table style="width:100%;font-family:'Inter',sans-serif;font-size:.58rem;border-collapse:collapse;">
+                <thead>
+                  <tr style="background:var(--surface);">
+                    <th style="text-align:left;padding:.4rem .6rem;font-weight:700;color:var(--ink);border-bottom:1px solid #e8e6e1;">Parameter</th>
+                    <th style="text-align:left;padding:.4rem .6rem;font-weight:700;color:var(--ink);border-bottom:1px solid #e8e6e1;">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Provider</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:var(--ink);font-weight:600;">Pinecone (prod) · ChromaDB (local)</td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Index</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;"><code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">nightingale-launch</code></td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Namespaces</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;"><code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">technical</code> · <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">gtm</code> · <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">launch</code></td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Embedding</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;"><code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">text-embedding-3-small</code> · 1536-dim</td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Chunk size / overlap</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;">512 tokens / 64 tokens</td></tr>
+                  <tr><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;color:#767676;">Similarity</td><td style="padding:.3rem .6rem;border-bottom:1px solid #f4f3f0;">Cosine · top-k = 5</td></tr>
+                  <tr><td style="padding:.3rem .6rem;color:#767676;">Why text-embedding-3-small?</td><td style="padding:.3rem .6rem;font-style:italic;color:#a8a29e;">62M params · 5× cheaper than large · retrieval quality on par for short structured KB docs · low latency for real-time routing</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="font-family:'Inter',sans-serif;font-size:.52rem;color:#a8a29e;text-align:center;margin-top:.3rem;">Current demo embeds KB as JS constants (no vector search). Production would use Pinecone for chunked retrieval.</div>
+          </div>
+
+          <!-- ── KEY DESIGN DECISIONS ── -->
+          <div style="border-top:1px solid #e8e6e1;padding-top:.75rem;margin-top:.75rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.12em;color:#a8a29e;text-transform:uppercase;text-align:center;margin-bottom:.55rem;">Key Design Decisions</div>
+            <div style="display:flex;flex-direction:column;gap:.35rem;">
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:6px;padding:.5rem .65rem;display:flex;gap:.5rem;">
+                <span style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:var(--ink);white-space:nowrap;min-width:120px;">Why static hosting?</span>
+                <span style="font-size:.55rem;color:#767676;line-height:1.5;">Eliminates server cost and deployment complexity. API key in sessionStorage — scoped per tab, never persisted. The <code style="font-size:.52rem;background:#e8e6e1;padding:1px 3px;border-radius:2px;">anthropic-dangerous-direct-browser-access</code> header enables browser-to-API calls.</span>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:6px;padding:.5rem .65rem;display:flex;gap:.5rem;">
+                <span style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:var(--ink);white-space:nowrap;min-width:120px;">Why multi-agent?</span>
+                <span style="font-size:.55rem;color:#767676;line-height:1.5;">Each subagent has a short, focused prompt → higher quality. KB files scoped per domain → no info leakage. Each agent is independently testable.</span>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:6px;padding:.5rem .65rem;display:flex;gap:.5rem;">
+                <span style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:var(--ink);white-space:nowrap;min-width:120px;">Why JS KB constants?</span>
+                <span style="font-size:.55rem;color:#767676;line-height:1.5;">For a demo, embedding KBs in the static file eliminates the need for a running vector DB server. Production design uses Pinecone for dynamic retrieval.</span>
+              </div>
+
+              <div style="background:#fff;border:1px solid #e8e6e1;border-radius:6px;padding:.5rem .65rem;display:flex;gap:.5rem;">
+                <span style="font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;color:var(--ink);white-space:nowrap;min-width:120px;">Why no framework?</span>
+                <span style="font-size:.55rem;color:#767676;line-height:1.5;">No LangChain/LangGraph — the ROUTE: signal pattern is simple enough that vanilla JS handles routing. Self-contained in one .html file.</span>
+              </div>
+
+            </div>
+          </div>
+
           </div><!-- /dark container -->
         </div>
 
@@ -1463,9 +1664,10 @@ function setAgent(agent) {
   dot.style.background = AGENT_COLORS[agent] || '#767676';
   name.textContent = AGENT_LABELS[agent] || agent;
 
-  // KB strip
+  // KB strip (sidebar may not be present)
   ['launch','tech','gtm'].forEach(k => {
-    document.getElementById('kb-'+k).classList.toggle('on', KB_ACCESS[agent]?.includes(k));
+    const el = document.getElementById('kb-'+k);
+    if (el) el.classList.toggle('on', KB_ACCESS[agent]?.includes(k));
   });
 }
 
